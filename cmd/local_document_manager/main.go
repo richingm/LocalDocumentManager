@@ -26,8 +26,8 @@ func main() {
 		)
 	})
 
-	// 根据book的key获取脑图数据
-	r.GET("/mind/:doc_key", func(c *gin.Context) {
+	// 根据note的key获取脑图数据
+	r.GET("/mind/:note_key", func(c *gin.Context) {
 
 	})
 
