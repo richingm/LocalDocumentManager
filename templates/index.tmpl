@@ -124,7 +124,7 @@
                 {{ if $item.Children }}
                 <ol>
                     {{range $i, $v := $item.Children}}
-                    <li note-key="{{ $v.NoteKey}}" >{{ $v.NoteName}}</li>
+                    <li note-key="{{ $v.NoteKey}}" title="{{ $v.NoteName}}">{{ $v.NoteName}}</li>
                     {{ end }}
                 </ol>
                 {{ end }}
@@ -135,7 +135,7 @@
     </div>
     <div class="container-right">
         <div class="top">
-            <h1>标题</h1>
+            <h1 id="note-title"></h1>
             <a id="demo01" href="#animatedModal" class="button">查看内容</a>
         </div>
         <div id="jsmind_container"></div>
@@ -162,80 +162,51 @@
 <script type="text/javascript">
     var _jm = null;
 
-    function load_jsmind() {
-        var mind = {
-            meta: {
-                name: 'demo',
-                author: 'hizzgdev@163.com',
-                version: '0.2',
+    function load_jsmind(note_key) {
+        url = "/mind/" + note_key
+        $.ajax({
+            url: url,
+            type: "GET",
+            data: {
+                param1: "value1",
+                param2: "value2"
             },
-            format: 'node_array',
-            data: [
-                {id: 'root', isroot: true, topic: 'jsMind'},
-
-                {id: 'sub1', parentid: 'root', topic: 'sub1'},
-                {id: 'sub11', parentid: 'sub1', topic: 'sub11'},
-                {id: 'sub12', parentid: 'sub1', topic: 'sub12'},
-                {id: 'sub13', parentid: 'sub1', topic: 'sub13'},
-                {id: 'sub14', parentid: 'sub13', topic: 'sub14'},
-                {id: 'sub15', parentid: 'sub14', topic: 'sub15'},
-                {id: 'sub16', parentid: 'sub15', topic: 'sub16'},
-                {id: 'sub17', parentid: 'sub16', topic: 'sub17'},
-                {id: 'sub18', parentid: 'sub17', topic: 'sub18'},
-                {id: 'sub19', parentid: 'sub18', topic: 'sub19'},
-                {id: 'sub20', parentid: 'sub19', topic: 'sub20'},
-                {id: 'sub30', parentid: 'sub20', topic: 'sub30'},
-                {id: 'sub31', parentid: 'sub30', topic: 'sub31'},
-
-
-                {id: 'sub32', parentid: 'sub31', topic: 'sub31'},
-                {id: 'sub33', parentid: 'sub32', topic: 'sub31'},
-                {id: 'sub34', parentid: 'sub33', topic: 'sub31'},
-                {id: 'sub35', parentid: 'sub34', topic: 'sub31'},
-                {id: 'sub36', parentid: 'sub35', topic: 'sub31'},
-                {id: 'sub37', parentid: 'sub36', topic: 'sub31'},
-                {id: 'sub38', parentid: 'sub37', topic: 'sub31'},
-                {id: 'sub39', parentid: 'sub38', topic: 'sub31'},
-
-                {id: 'sub41', parentid: 'sub30', topic: 'sub31'},
-
-
-                {id: 'sub2', parentid: 'root', topic: 'sub2', data: {class: 'cur_node'}},
-                {id: 'sub21', parentid: 'sub2', topic: 'sub21'},
-                {id: 'sub22', parentid: 'sub2', topic: 'sub22'},
-
-                {id: 'sub3', parentid: 'root', topic: 'sub3'},
-                {id: 'sub4', parentid: 'root', topic: 'sub3'},
-                {id: 'sub5', parentid: 'root', topic: 'sub3'},
-                {id: 'sub6', parentid: 'root', topic: 'sub3'},
-                {id: 'sub7', parentid: 'root', topic: 'sub3'},
-                {id: 'sub8', parentid: 'root', topic: 'sub3'},
-                {id: 'sub9', parentid: 'root', topic: 'sub3'},
-                {id: 'sub10', parentid: 'root', topic: 'sub3'},
-
-            ],
-        };
-        var options = {
-            container: 'jsmind_container',
-            editable: false,
-            theme: 'primary',
-            log_level: 'debug',
-            shortcut: {
-                handles: {
-                    test: function (j, e) {
-                        console.log(j);
+            success: function(data) {
+                var mind = {
+                    meta: {
+                        name: 'demo',
+                        author: 'demo@demo.com',
+                        version: '0.2',
                     },
-                },
-                mapping: {
-                    test: 89,
-                },
+                    format: 'node_tree',
+                    data: data,
+                };
+                var options = {
+                    container: 'jsmind_container',
+                    editable: false,
+                    theme: 'primary',
+                    log_level: 'debug',
+                    shortcut: {
+                        handles: {
+                            test: function (j, e) {
+                                console.log(j);
+                            },
+                        },
+                        mapping: {
+                            test: 89,
+                        },
+                    },
+                    view: {
+                        expander_style: 'char',
+                    },
+                };
+                _jm = new jsMind(options);
+                _jm.show(mind);
             },
-            view: {
-                expander_style: 'char',
+            error: function(xhr, status, error) {
+                alert("请求失败：" + error);
             },
-        };
-        _jm = new jsMind(options);
-        _jm.show(mind);
+        });
     }
 </script>
 
@@ -285,18 +256,19 @@
 
         //选中状态
         $(".lvc-nav li").click(function () {
-            $("#jsmind_container").html("")
             $(this).siblings().find('ol').hide()
             $(this).addClass("active").siblings().removeClass("active")
+            $("#jsmind_container").html("")
         })
 
         //选中子集清除父级active
         $("ol>li").click(function (e) {
-            $("#jsmind_container").html("")
             console.log('ol>li clicked')
             e.stopPropagation()
             $(this).parent().parent().removeClass("active")
-            load_jsmind();
+            $("#jsmind_container").html("")
+            $("#note-title").html($(this).attr("title"))
+            load_jsmind($(this).attr("note-key"));
         })
 
         //二级导航展开收起

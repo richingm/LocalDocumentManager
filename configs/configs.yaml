@@ -6,9 +6,9 @@ notes:
     children:
       - note_name: "go语言笔记"
         note_key: "go_base"
-        dir: ""
+        dir: "/Users/ruichengm/go_study_new/jsmind"
   - note_group: "架构相关"
     children:
       - note_name: "设计模式"
         note_key: "design_mode"
-        dir: ""
+        dir: "/Users/ruichengm/go_study_new/jsmind"
