@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>jsMind</title>
+    <link type="text/css" rel="stylesheet" href="/static/css/jsmind.css"/>
+    <link rel="stylesheet" href="/static/css/normalize.min.css">
+    <link rel="stylesheet" href="/static/css/animate.min.css">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        #btn-close-modal {
+            width: 100%;
+            text-align: center;
+            cursor: pointer;
+            color: #fff;
+        }
+    </style>
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        .top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .top h1 {
+            margin-left: 20px;
+        }
+
+        .top a {
+            margin: 20px;
+        }
+
+        .container {
+            display: flex;
+            height: calc(100% - 100px); /* 减去头部的高度 */
+        }
+
+        #jsmind_container {
+            flex: 1;
+            min-width: 90%;
+            max-width: 90%;
+            margin-left: 50px;
+            background-color: white;
+            overflow-y: auto; /* 垂直滚动条 */
+            display: inline;
+        }
+
+        .collapsed {
+            width: 0 !important;
+            overflow: hidden;
+        }
+
+
+        .popup-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+        }
+
+        .popup-content {
+            position: fixed;
+            bottom: 0;
+            right: 0;
+            width: 300px;
+            height: 250px;
+            background-color: white;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+            padding: 20px;
+        }
+
+        .popup-container.show .popup-content {
+            transform: translateY(0);
+        }
+
+
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="sidebar" id="lvc-nav">
+        <ul class="lvc-nav">
+            <li class="nav-pic1 next-layer" title="课堂管理">
+                <a>课堂管理</a>
+                <ol>
+                    <li>历史课堂统计</li>
+                    <li>课堂实时统计</li>
+                </ol>
+            </li>
+            <li class="nav-pic2" title="科目管理"><a>科目管理</a></li>
+            <li class="nav-pic3" title="教室管理"><a>教室管理</a></li>
+            <li class="nav-pic4" title="课堂点播"><a>课堂点播</a></li>
+            <li class="nav-pic5" title="课堂直播"><a>课堂直播</a></li>
+            <li class="nav-pic6" title="用户管理"><a>用户管理</a></li>
+            <li class="nav-pic7 next-layer" title="报表统计">
+                <a>报表统计</a>
+                <ol>
+                    <li>历史课堂统计</li>
+                    <li>课堂实时统计</li>
+                </ol>
+            </li>
+            <li class="nav-pic8" title="日志管理"><a>日志管理</a></li>
+            <li class="nav-pic9" title="系统管理"><a>系统管理</a></li>
+            <li class="nav-pic10" title="订单管理"><a>订单管理</a></li>
+            <li class="nav-pic11" title="我的课堂"><a>我的课堂</a></li>
+            <li class="nav-pic12" title="个人中心"><a>个人中心</a></li>
+        </ul>
+        <button type="button" class="btn-nav"></button>
+    </div>
+    <div id="jsmind_container">
+        <div class="top">
+            <h1>标题</h1>
+            <a id="demo01" href="#animatedModal">查看内容</a>
+        </div>
+    </div>
+</div>
+
+
+<!--DEMO01-->
+<div id="animatedModal">
+    <!--THIS IS IMPORTANT! to close the modal, the class name has to match the name given on the ID -->
+    <div id="btn-close-modal" class="close-animatedModal">
+        关闭
+    </div>
+    <div class="modal-content">
+        <!--Your modal content goes here-->
+    </div>
+</div>
+
+<script type="text/javascript" src="/static/js/jsmind.js"></script>
+<script type="text/javascript" src="/static/js/jsmind.draggable-node.js"></script>
+<script type="text/javascript" src="/static/jsmind.shell.js"></script>
+<script type="text/javascript" src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+<script src="/static/js/animatedModal.js"></script>
+<script type="text/javascript">
+    var _jm = null;
+
+    function load_jsmind() {
+        var mind = {
+            meta: {
+                name: 'demo',
+                author: 'hizzgdev@163.com',
+                version: '0.2',
+            },
+            format: 'node_array',
+            data: [
+                {id: 'root', isroot: true, topic: 'jsMind'},
+
+                {id: 'sub1', parentid: 'root', topic: 'sub1'},
+                {id: 'sub11', parentid: 'sub1', topic: 'sub11'},
+                {id: 'sub12', parentid: 'sub1', topic: 'sub12'},
+                {id: 'sub13', parentid: 'sub1', topic: 'sub13'},
+                {id: 'sub14', parentid: 'sub13', topic: 'sub14'},
+                {id: 'sub15', parentid: 'sub14', topic: 'sub15'},
+                {id: 'sub16', parentid: 'sub15', topic: 'sub16'},
+                {id: 'sub17', parentid: 'sub16', topic: 'sub17'},
+                {id: 'sub18', parentid: 'sub17', topic: 'sub18'},
+                {id: 'sub19', parentid: 'sub18', topic: 'sub19'},
+                {id: 'sub20', parentid: 'sub19', topic: 'sub20'},
+                {id: 'sub30', parentid: 'sub20', topic: 'sub30'},
+                {id: 'sub31', parentid: 'sub30', topic: 'sub31'},
+
+
+                {id: 'sub32', parentid: 'sub31', topic: 'sub31'},
+                {id: 'sub33', parentid: 'sub32', topic: 'sub31'},
+                {id: 'sub34', parentid: 'sub33', topic: 'sub31'},
+                {id: 'sub35', parentid: 'sub34', topic: 'sub31'},
+                {id: 'sub36', parentid: 'sub35', topic: 'sub31'},
+                {id: 'sub37', parentid: 'sub36', topic: 'sub31'},
+                {id: 'sub38', parentid: 'sub37', topic: 'sub31'},
+                {id: 'sub39', parentid: 'sub38', topic: 'sub31'},
+
+                {id: 'sub41', parentid: 'sub30', topic: 'sub31'},
+
+
+                {id: 'sub2', parentid: 'root', topic: 'sub2', data: {class: 'cur_node'}},
+                {id: 'sub21', parentid: 'sub2', topic: 'sub21'},
+                {id: 'sub22', parentid: 'sub2', topic: 'sub22'},
+
+                {id: 'sub3', parentid: 'root', topic: 'sub3'},
+                {id: 'sub4', parentid: 'root', topic: 'sub3'},
+                {id: 'sub5', parentid: 'root', topic: 'sub3'},
+                {id: 'sub6', parentid: 'root', topic: 'sub3'},
+                {id: 'sub7', parentid: 'root', topic: 'sub3'},
+                {id: 'sub8', parentid: 'root', topic: 'sub3'},
+                {id: 'sub9', parentid: 'root', topic: 'sub3'},
+                {id: 'sub10', parentid: 'root', topic: 'sub3'},
+
+            ],
+        };
+        var options = {
+            container: 'jsmind_container',
+            editable: false,
+            theme: 'primary',
+            log_level: 'debug',
+            shortcut: {
+                handles: {
+                    test: function (j, e) {
+                        console.log(j);
+                    },
+                },
+                mapping: {
+                    test: 89,
+                },
+            },
+            view: {
+                expander_style: 'char',
+            },
+        };
+        _jm = new jsMind(options);
+        _jm.show(mind);
+    }
+
+    // $("#jsmind_container").click(function () {
+    //     var selected_node = _jm.get_selected_node();
+    //     if (!!selected_node) {
+    //         alert(selected_node.topic);
+    //         // $("#demo01").animatedModal();
+    //         _jm.select_clear()
+    //     }
+    // })
+    load_jsmind();
+
+
+</script>
+
+<script>
+
+    $("#demo01").animatedModal({
+        // animatedIn:'lightSpeedIn',
+        // animatedOut:'bounceOutDown',
+        // color:'#3498db',
+        // 回调函数
+        beforeOpen: function () {
+            var selected_node = _jm.get_selected_node();
+            if (!!selected_node) {
+                $("#animatedModal").css("display", "block");
+                $(".modal-content").html(selected_node.topic)
+            } else {
+                $("#animatedModal").css("display", "none");
+            }
+        },
+        // afterOpen: function() {
+        //     console.log("The animation is completed");
+        // },
+        // beforeClose: function() {
+        //     console.log("The animation was called");
+        // },
+        // afterClose: function() {
+        //     console.log("The animation is completed");
+        // }
+    });
+
+
+</script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        //展开收起
+        $(".btn-nav").click(function () {
+            $(".sidebar").toggleClass("lvc-close")
+            $("ol").toggleClass("small-ol")
+            $(".next-layer ol").hide()
+
+            if ($("#lvc-nav").hasClass('lvc-close')) {
+                $(".next-layer ").removeClass("arrow")
+                $(".sidebar").width("auto")
+            }
+        })
+
+        //选中状态
+        $(".lvc-nav li").click(function () {
+            $(this).siblings().find('ol').hide()
+            $(this).addClass("active").siblings().removeClass("active")
+        })
+
+        //选中子集清除父级active
+        $("ol>li").click(function (e) {
+            console.log('ol>li clicked')
+            e.stopPropagation()
+            $(this).parent().parent().removeClass("active")
+        })
+
+        //二级导航展开收起
+        $(".next-layer").click(function () {
+            $(this).children("ol").toggle();
+            $(this).toggleClass("arrow").siblings().removeClass("arrow")
+        })
+
+
+        $("ol li").click(function () {
+            if ($("ol").hasClass('small-ol')) {
+                $(".small-ol").hide();
+                $(this).parent().parent().addClass("active")
+            }
+        })
+    })
+</script>
+
+</body>
+</html>
