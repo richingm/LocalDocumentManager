@@ -6,7 +6,7 @@ notes:
     children:
       - note_name: "go语言笔记"
         note_key: "go_base"
-        dir: "/Users/ruichengm/go_study_new/jsmind"
+        dir: "/Users/ruichengm/Downloads/repo-web-dao-143044/internal/dao"
   - note_group: "架构相关"
     children:
       - note_name: "设计模式"

@@ -136,6 +136,8 @@
     <div class="container-right">
         <div class="top">
             <h1 id="note-title"></h1>
+            <div id="currentNoteKey" style="display: none;">
+            </div>
             <a id="demo01" href="#animatedModal" class="button">查看内容</a>
         </div>
         <div id="jsmind_container"></div>
@@ -167,10 +169,7 @@
         $.ajax({
             url: url,
             type: "GET",
-            data: {
-                param1: "value1",
-                param2: "value2"
-            },
+            data: {},
             success: function(data) {
                 var mind = {
                     meta: {
@@ -213,28 +212,32 @@
 <script>
 
     $("#demo01").animatedModal({
-        // animatedIn:'lightSpeedIn',
-        // animatedOut:'bounceOutDown',
-        // color:'#3498db',
-        // 回调函数
         beforeOpen: function () {
-            var selected_node = _jm.get_selected_node();
-            if (!!selected_node) {
-                $("#animatedModal").css("display", "block");
-                $(".modal-content").html(selected_node.topic)
-            } else {
+            var note_key = $("#currentNoteKey").html()
+            alert(note_key)
+            if (note_key === "") {
                 $("#animatedModal").css("display", "none");
+            }  else {
+                var selected_node = _jm.get_selected_node();
+                if (!!selected_node) {
+                    $("#animatedModal").css("display", "block");
+                    url = "/note/"+note_key+"/node/" + selected_node.id
+                    $.ajax({
+                        url: url,
+                        type: "GET",
+                        data: {},
+                        success: function(data) {
+                            $(".modal-content").html(data)
+                        },
+                        error: function(xhr, status, error) {
+                            alert("请求失败：" + error);
+                        },
+                    });
+                } else {
+                    $("#animatedModal").css("display", "none");
+                }
             }
         },
-        // afterOpen: function() {
-        //     console.log("The animation is completed");
-        // },
-        // beforeClose: function() {
-        //     console.log("The animation was called");
-        // },
-        // afterClose: function() {
-        //     console.log("The animation is completed");
-        // }
     });
 
 
@@ -258,6 +261,7 @@
         $(".lvc-nav li").click(function () {
             $(this).siblings().find('ol').hide()
             $(this).addClass("active").siblings().removeClass("active")
+            $("#currentNoteKey").html("")
             $("#jsmind_container").html("")
         })
 
@@ -268,6 +272,7 @@
             $(this).parent().parent().removeClass("active")
             $("#jsmind_container").html("")
             $("#note-title").html($(this).attr("title"))
+            $("#currentNoteKey").html($(this).attr("note-key"))
             load_jsmind($(this).attr("note-key"));
         })
 

@@ -7,6 +7,10 @@ import (
 	"richingm/LocalDocumentManager/internal/application"
 )
 
+const (
+	FIleSuffix = "md"
+)
+
 func main() {
 	configs.InitConfig()
 	r := gin.Default()
@@ -40,7 +44,7 @@ func main() {
 			return
 		}
 		nodeService := application.NewNodeService()
-		nodes, err := nodeService.GetMind(dir, noteName)
+		nodes, err := nodeService.GetMind(dir, noteName, 3, FIleSuffix)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, err)
 		}
@@ -58,13 +62,12 @@ func main() {
 			return
 		}
 		nodeService := application.NewNodeService()
-		_, err = nodeService.GetContent(dir, noteName, nodeId)
+		content, err := nodeService.GetContent(dir, noteName, nodeId, FIleSuffix)
 		if err != nil {
 			c.JSON(http.StatusNotFound, err)
 			return
 		}
-		//nodeService := application.NewNodeService()
-		//nodeService.GetMind()
+		c.JSON(http.StatusOK, content)
 	})
 
 	r.Run(configs.ConfigXx.Server.HTTP.Addr)

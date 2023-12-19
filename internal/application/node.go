@@ -4,7 +4,6 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"errors"
-	"fmt"
 	"richingm/LocalDocumentManager/internal/domain"
 )
 
@@ -19,75 +18,79 @@ type NodeDto struct {
 	ID       string    `json:"id"`
 	Topic    string    `json:"topic"`
 	Children []NodeDto `json:"children"`
+	Expanded bool      `json:"expanded"` // 子节点默认不打开
 }
 
 func (n *NodeService) GetContentByNodeId(dir string, nodeId string) {
 
 }
 
-func convertNodeDoToNodeDto(nodeDo domain.NodeDo) NodeDto {
+func convertNodeDoToNodeDto(fieldsDo domain.FileDo, level int) NodeDto {
+	expanded := true
+	if level <= 0 {
+		expanded = false
+	}
 	nodeDto := NodeDto{
-		ID:    generateID(nodeDo.Path),
-		Topic: nodeDo.Name,
+		ID:       generateID(fieldsDo.Path),
+		Topic:    fieldsDo.Name,
+		Expanded: expanded,
 	}
 
-	for _, child := range nodeDo.Children {
-		childDto := convertNodeDoToNodeDto(child)
+	level = level - 1
+
+	for _, child := range fieldsDo.Children {
+		childDto := convertNodeDoToNodeDto(child, level)
 		nodeDto.Children = append(nodeDto.Children, childDto)
 	}
 	return nodeDto
 }
 
-func (n *NodeService) GetMind(dir string, noteName string) (NodeDto, error) {
-	nodeBiz := domain.NewNodeBiz()
+func (n *NodeService) GetMind(dir string, noteName string, level int, fileSuffix string) (NodeDto, error) {
+	nodeBiz := domain.NewFileBiz()
 	var res NodeDto
-	nodeDo, err := nodeBiz.GetNodes(dir)
+	fieldDo, err := nodeBiz.GetFiles(dir, fileSuffix)
 	if err != nil {
 		return res, err
 	}
-
-	nodeDo.Name = noteName
-	nodeDo.Path = "/"
-
-	return convertNodeDoToNodeDto(nodeDo), nil
+	fieldDo.Name = noteName
+	return convertNodeDoToNodeDto(fieldDo, level), nil
 }
 
-func (n *NodeService) GetContent(dir string, noteName string, nodeId string) (NodeDto, error) {
-	nodeBiz := domain.NewNodeBiz()
-	var res NodeDto
-	nodeDo, err := nodeBiz.GetNodes(dir)
+func (n *NodeService) GetContent(dir string, noteName string, nodeId string, fileSuffix string) (string, error) {
+	fileBiz := domain.NewFileBiz()
+	fieldDo, err := fileBiz.GetFiles(dir, fileSuffix)
 	if err != nil {
-		return res, err
+		return "", err
 	}
 
-	nodeDo.Name = noteName
-	nodeDo.Path = "/"
-
-	dto := convertNodeDoToNodeDto(nodeDo)
-
-	foundNode := findNodeByID(dto, nodeId)
-	if foundNode == nil {
-		return res, errors.New("不存在")
+	isFile, filePath := getPathByNodeId(fieldDo, nodeId)
+	if !isFile {
+		return "", errors.New("不是文件")
+	}
+	if filePath == "" {
+		return "", errors.New("数据不存在")
 	}
 
-	fmt.Println(foundNode)
+	content, err := fileBiz.GetFileContent(filePath)
+	if err != nil {
+		return "", err
+	}
 
-	return res, nil
+	return content, nil
 }
 
-func findNodeByID(node NodeDto, targetID string) *NodeDto {
-	if node.ID == targetID {
-		return &node
+func getPathByNodeId(file domain.FileDo, targetID string) (bool, string) {
+	if generateID(file.Path) == targetID {
+		return file.Type == domain.TypeFile, file.Path
 	}
 
-	for _, child := range node.Children {
-		foundNode := findNodeByID(child, targetID)
-		if foundNode != nil {
-			return foundNode
+	for _, child := range file.Children {
+		isFile, filePath := getPathByNodeId(child, targetID)
+		if len(filePath) > 0 {
+			return isFile, filePath
 		}
 	}
-
-	return nil
+	return false, ""
 }
 
 func generateID(input string) string {
