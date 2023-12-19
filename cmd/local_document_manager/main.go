@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"richingm/LocalDocumentManager/configs"
+	"richingm/LocalDocumentManager/internal/application"
 )
 
 func main() {
@@ -17,11 +18,14 @@ func main() {
 	r.LoadHTMLGlob("templates/*")
 
 	r.GET("/", func(c *gin.Context) {
+		noteTreeService := application.NewNoteTreeService()
+		treeList := noteTreeService.GetTree(configs.ConfigXx)
 		c.HTML(
 			http.StatusOK,
 			"index.tmpl",
 			gin.H{
-				"treeData": []string{},
+				"treeList": treeList,
+				"aaa":      "花花草草",
 			},
 		)
 	})

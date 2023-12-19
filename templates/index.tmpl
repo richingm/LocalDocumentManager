@@ -42,6 +42,15 @@
             height: calc(100% - 100px); /* 减去头部的高度 */
         }
 
+        .container-right {
+            flex: 1;
+            min-width: 90%;
+            max-width: 90%;
+            margin-left: 50px;
+            background-color: white;
+            display: inline;
+        }
+
         #jsmind_container {
             flex: 1;
             min-width: 90%;
@@ -85,6 +94,23 @@
             transform: translateY(0);
         }
 
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        .button:hover {
+            background-color: #45a049;
+        }
+
+        .button:active {
+            background-color: #3e8e41;
+        }
 
     </style>
 </head>
@@ -92,38 +118,27 @@
 <div class="container">
     <div class="sidebar" id="lvc-nav">
         <ul class="lvc-nav">
-            <li class="nav-pic1 next-layer" title="课堂管理">
-                <a>课堂管理</a>
+            {{range $index, $item := .treeList}}
+            <li class="nav-pic1 next-layer" title="{{ $item.GroupName}}">
+                <a>{{ $item.GroupName}}</a>
+                {{ if $item.Children }}
                 <ol>
-                    <li>历史课堂统计</li>
-                    <li>课堂实时统计</li>
+                    {{range $i, $v := $item.Children}}
+                    <li note-key="{{ $v.NoteKey}}" >{{ $v.NoteName}}</li>
+                    {{ end }}
                 </ol>
+                {{ end }}
             </li>
-            <li class="nav-pic2" title="科目管理"><a>科目管理</a></li>
-            <li class="nav-pic3" title="教室管理"><a>教室管理</a></li>
-            <li class="nav-pic4" title="课堂点播"><a>课堂点播</a></li>
-            <li class="nav-pic5" title="课堂直播"><a>课堂直播</a></li>
-            <li class="nav-pic6" title="用户管理"><a>用户管理</a></li>
-            <li class="nav-pic7 next-layer" title="报表统计">
-                <a>报表统计</a>
-                <ol>
-                    <li>历史课堂统计</li>
-                    <li>课堂实时统计</li>
-                </ol>
-            </li>
-            <li class="nav-pic8" title="日志管理"><a>日志管理</a></li>
-            <li class="nav-pic9" title="系统管理"><a>系统管理</a></li>
-            <li class="nav-pic10" title="订单管理"><a>订单管理</a></li>
-            <li class="nav-pic11" title="我的课堂"><a>我的课堂</a></li>
-            <li class="nav-pic12" title="个人中心"><a>个人中心</a></li>
+            {{ end}}
         </ul>
         <button type="button" class="btn-nav"></button>
     </div>
-    <div id="jsmind_container">
+    <div class="container-right">
         <div class="top">
             <h1>标题</h1>
-            <a id="demo01" href="#animatedModal">查看内容</a>
+            <a id="demo01" href="#animatedModal" class="button">查看内容</a>
         </div>
+        <div id="jsmind_container"></div>
     </div>
 </div>
 
@@ -222,18 +237,6 @@
         _jm = new jsMind(options);
         _jm.show(mind);
     }
-
-    // $("#jsmind_container").click(function () {
-    //     var selected_node = _jm.get_selected_node();
-    //     if (!!selected_node) {
-    //         alert(selected_node.topic);
-    //         // $("#demo01").animatedModal();
-    //         _jm.select_clear()
-    //     }
-    // })
-    load_jsmind();
-
-
 </script>
 
 <script>
@@ -282,15 +285,18 @@
 
         //选中状态
         $(".lvc-nav li").click(function () {
+            $("#jsmind_container").html("")
             $(this).siblings().find('ol').hide()
             $(this).addClass("active").siblings().removeClass("active")
         })
 
         //选中子集清除父级active
         $("ol>li").click(function (e) {
+            $("#jsmind_container").html("")
             console.log('ol>li clicked')
             e.stopPropagation()
             $(this).parent().parent().removeClass("active")
+            load_jsmind();
         })
 
         //二级导航展开收起
@@ -298,7 +304,6 @@
             $(this).children("ol").toggle();
             $(this).toggleClass("arrow").siblings().removeClass("arrow")
         })
-
 
         $("ol li").click(function () {
             if ($("ol").hasClass('small-ol')) {
