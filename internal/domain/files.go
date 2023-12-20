@@ -76,8 +76,10 @@ func loopFiles(path string, fileSuffix string) (FileDo, error) {
 		if err != nil {
 			return FileDo{}, err
 		}
-
 		for _, file := range files {
+			if filepath.Base(file) == "a.assets" {
+				continue
+			}
 			childFiles, err := loopFiles(file, fileSuffix)
 			if err != nil {
 				return FileDo{}, err

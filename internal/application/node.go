@@ -1,8 +1,8 @@
 package application
 
 import (
-	"crypto/sha256"
-	"encoding/base64"
+	"crypto/md5"
+	"encoding/hex"
 	"errors"
 	"richingm/LocalDocumentManager/internal/domain"
 )
@@ -76,6 +76,8 @@ func (n *NodeService) GetContent(dir string, noteName string, nodeId string, fil
 		return "", err
 	}
 
+	content = "<html><head></head><body>" + content + "</body></html>"
+
 	return content, nil
 }
 
@@ -94,8 +96,13 @@ func getPathByNodeId(file domain.FileDo, targetID string) (bool, string) {
 }
 
 func generateID(input string) string {
-	// 计算SHA-256哈希值
-	hash := sha256.Sum256([]byte(input))
-	// 将哈希值转换为Base64编码
-	return base64.StdEncoding.EncodeToString(hash[:])
+	data := []byte(input) // 替换为要生成MD5哈希值的数据
+	return generateMD5(data)
+}
+
+func generateMD5(data []byte) string {
+	hasher := md5.New()
+	hasher.Write(data)
+	hash := hasher.Sum(nil)
+	return hex.EncodeToString(hash)
 }

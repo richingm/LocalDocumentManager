@@ -151,7 +151,7 @@
     <div id="btn-close-modal" class="close-animatedModal">
         关闭
     </div>
-    <div class="modal-content">
+    <div class="modal-content" style="">
         <!--Your modal content goes here-->
     </div>
 </div>
@@ -214,7 +214,6 @@
     $("#demo01").animatedModal({
         beforeOpen: function () {
             var note_key = $("#currentNoteKey").html()
-            alert(note_key)
             if (note_key === "") {
                 $("#animatedModal").css("display", "none");
             }  else {
@@ -231,6 +230,7 @@
                         },
                         error: function(xhr, status, error) {
                             alert("请求失败：" + error);
+                            $("#animatedModal").css("display", "none");
                         },
                     });
                 } else {

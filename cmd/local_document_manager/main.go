@@ -58,13 +58,13 @@ func main() {
 		noteTreeService := application.NewNoteTreeService()
 		noteName, dir, err := noteTreeService.GetDirAndName(configs.ConfigXx, noteKey)
 		if err != nil {
-			c.JSON(http.StatusNotFound, err)
+			c.JSON(http.StatusInternalServerError, err)
 			return
 		}
 		nodeService := application.NewNodeService()
 		content, err := nodeService.GetContent(dir, noteName, nodeId, FIleSuffix)
 		if err != nil {
-			c.JSON(http.StatusNotFound, err)
+			c.JSON(http.StatusInternalServerError, err)
 			return
 		}
 		c.JSON(http.StatusOK, content)
