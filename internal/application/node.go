@@ -86,6 +86,8 @@ func (n *NodeService) GetContentAndTitle(dir string, noteName string, nodeId str
 		return "", "", err
 	}
 
+	content = strings.Replace(content, "\n\n", "<br>", -1)
+
 	content = addBlankTargetAttribute(content)
 
 	return fmt.Sprintf("%s/%s", noteName, title), content, nil
