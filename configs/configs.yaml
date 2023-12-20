@@ -12,3 +12,8 @@ notes:
       - note_name: "设计模式"
         note_key: "design_mode"
         dir: "/Users/ruichengm/go_study_new/jsmind"
+  - note_group: "五笔"
+    children:
+      - note_name: "五笔教程"
+        note_key: "five_pen"
+        dir: "/Users/ruichengm/knowledge_repository/fivePenLearning"

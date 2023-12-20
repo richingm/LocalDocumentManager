@@ -77,7 +77,7 @@ func loopFiles(path string, fileSuffix string) (FileDo, error) {
 			return FileDo{}, err
 		}
 		for _, file := range files {
-			if filepath.Base(file) == "a.assets" {
+			if filepath.Base(file) == "a.assets" || filepath.Base(file) == ".git" {
 				continue
 			}
 			childFiles, err := loopFiles(file, fileSuffix)
