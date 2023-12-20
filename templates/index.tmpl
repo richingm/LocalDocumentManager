@@ -124,6 +124,23 @@
             color: #333;
         }
 
+        table {
+            min-width: 50%;
+            width: auto;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border: 1px solid #000;
+        }
+
+        th {
+            background-color: #ccc;
+            color: #fff;
+        }
+
     </style>
 </head>
 <body>
@@ -228,7 +245,6 @@
         if (note_key !== "") {
             var selected_node = _jm.get_selected_node();
             if (!!selected_node) {
-                $("#animatedModal").css("display", "block");
                 url = "/note/"+note_key+"/node/" + selected_node.id
                 $.ajax({
                     url: url,
@@ -243,11 +259,7 @@
                                 // border: [0], //不显示边框
                                 resize: false,
                                 shadeClose: true,
-                                title: [
-                                    '你好，layer。',
-                                    // //自定义标题风格，如果不需要，直接title: '标题' 即可
-                                    // 'border:none; background:#61BA7A; color:#fff;'
-                                ],
+                                title: [data.title],
                                 bgcolor: '#eee', //设置层背景色
                                 content: "<div style=\"padding: 20px;\">" + data.content + "</div>",
                                 // shift: 'top' //从上动画弹出

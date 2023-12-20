@@ -3,8 +3,10 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"path/filepath"
 	"richingm/LocalDocumentManager/configs"
 	"richingm/LocalDocumentManager/internal/application"
+	"runtime"
 )
 
 const (
@@ -54,6 +56,7 @@ func main() {
 	// 根据book的key和note的id获取内容
 	r.GET("/note/:note_key/node/:node_id", func(c *gin.Context) {
 		type response struct {
+			Title    string `json:"title"`
 			Status   int    `json:"status"`
 			Content  string `json:"content"`
 			ErrorMsg string `json:"error_msg"`
@@ -69,16 +72,30 @@ func main() {
 			return
 		}
 		nodeService := application.NewNodeService()
-		content, err := nodeService.GetContent(dir, noteName, nodeId, FIleSuffix)
+		title, content, err := nodeService.GetContentAndTitle(dir, noteName, nodeId, FIleSuffix)
 		if err != nil {
 			res.ErrorMsg = err.Error()
 			c.JSON(http.StatusOK, res)
 			return
 		}
+
+		// 处理图片
+		content = nodeService.ExtractImagePaths(content, getRootPath())
+
+		res.Title = title
 		res.Status = http.StatusOK
 		res.Content = content
 		c.JSON(http.StatusOK, res)
 	})
 
 	r.Run(configs.ConfigXx.Server.HTTP.Addr)
+}
+
+// 获取main文件的执行路径
+func getRootPath() string {
+	_, filename, _, ok := runtime.Caller(0)
+	if !ok {
+		panic("")
+	}
+	return filepath.Dir(filename)
 }

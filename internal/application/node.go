@@ -4,7 +4,17 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"errors"
+	"fmt"
+	"golang.org/x/net/html"
+	"io"
+	"os"
+	"path/filepath"
 	"richingm/LocalDocumentManager/internal/domain"
+	"strings"
+)
+
+const (
+	NoteImageRelativePath = "/static/note/images"
 )
 
 type NodeService struct {
@@ -56,43 +66,82 @@ func (n *NodeService) GetMind(dir string, noteName string, level int, fileSuffix
 	return convertNodeDoToNodeDto(fieldDo, level), nil
 }
 
-func (n *NodeService) GetContent(dir string, noteName string, nodeId string, fileSuffix string) (string, error) {
+func (n *NodeService) GetContentAndTitle(dir string, noteName string, nodeId string, fileSuffix string) (string, string, error) {
 	fileBiz := domain.NewFileBiz()
 	fieldDo, err := fileBiz.GetFiles(dir, fileSuffix)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
-	isFile, filePath := getPathByNodeId(fieldDo, nodeId)
+	isFile, filePath, title := getPathAndTitleByNodeId(fieldDo, nodeId)
 	if !isFile {
-		return "", errors.New("不是文件")
+		return "", "", errors.New("不是文件")
 	}
 	if filePath == "" {
-		return "", errors.New("数据不存在")
+		return "", "", errors.New("数据不存在")
 	}
 
 	content, err := fileBiz.GetFileContent(filePath)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
-	content = "<html><head></head><body>" + content + "</body></html>"
+	content = addBlankTargetAttribute(content)
 
-	return content, nil
+	return fmt.Sprintf("%s/%s", noteName, title), content, nil
 }
 
-func getPathByNodeId(file domain.FileDo, targetID string) (bool, string) {
+func getPathAndTitleByNodeId(file domain.FileDo, targetID string) (bool, string, string) {
 	if generateID(file.Path) == targetID {
-		return file.Type == domain.TypeFile, file.Path
+		return file.Type == domain.TypeFile, file.Path, file.Name
 	}
 
 	for _, child := range file.Children {
-		isFile, filePath := getPathByNodeId(child, targetID)
+		isFile, filePath, title := getPathAndTitleByNodeId(child, targetID)
 		if len(filePath) > 0 {
-			return isFile, filePath
+			return isFile, filePath, title
 		}
 	}
-	return false, ""
+	return false, "", ""
+}
+
+func addBlankTargetAttribute(htmlString string) string {
+	doc, err := html.Parse(strings.NewReader(htmlString))
+	if err != nil {
+		// 处理解析错误
+		return htmlString
+	}
+
+	var traverse func(*html.Node)
+	traverse = func(n *html.Node) {
+		if n.Type == html.ElementNode && n.Data == "a" {
+			// 检查是否已经存在target属性
+			hasTargetAttr := false
+			for _, attr := range n.Attr {
+				if attr.Key == "target" {
+					hasTargetAttr = true
+					break
+				}
+			}
+
+			// 如果不存在target属性，则添加target="_blank"
+			if !hasTargetAttr {
+				n.Attr = append(n.Attr, html.Attribute{
+					Key: "target",
+					Val: "_blank",
+				})
+			}
+		}
+
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			traverse(c)
+		}
+	}
+
+	traverse(doc)
+	var sb strings.Builder
+	html.Render(&sb, doc)
+	return sb.String()
 }
 
 func generateID(input string) string {
@@ -105,4 +154,127 @@ func generateMD5(data []byte) string {
 	hasher.Write(data)
 	hash := hasher.Sum(nil)
 	return hex.EncodeToString(hash)
+}
+
+func getNoteImagePath(dir string) string {
+	parentDir := filepath.Dir(dir)
+	grandparentDir := filepath.Dir(parentDir)
+	return grandparentDir + "/" + strings.TrimLeft(NoteImageRelativePath, "/")
+}
+
+func (n *NodeService) ExtractImagePaths(htmlString string, destinationDir string) string {
+	destinationDir = getNoteImagePath(destinationDir)
+
+	_ = deleteFilesAndDirs(destinationDir)
+
+	doc, err := html.Parse(strings.NewReader(htmlString))
+	if err != nil {
+		return htmlString
+	}
+
+	var traverse func(*html.Node)
+	traverse = func(n *html.Node) {
+		if n.Type == html.ElementNode && n.Data == "img" {
+			for i, attr := range n.Attr {
+				if attr.Key == "src" {
+					// 移动图像文件到特定目录
+					newPath := filepath.Join(destinationDir+"/", filepath.Base(attr.Val))
+					if err := moveFile(attr.Val, newPath); err == nil {
+						n.Attr[i].Val = NoteImageRelativePath + "/" + filepath.Base(attr.Val)
+					} else {
+						panic(err)
+					}
+					break
+				}
+			}
+		}
+
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			traverse(c)
+		}
+	}
+
+	traverse(doc)
+
+	var sb strings.Builder
+	if err := html.Render(&sb, doc); err != nil {
+		return htmlString
+	}
+
+	return sb.String()
+}
+
+func deleteFilesAndDirs(dirPath string) error {
+	err := filepath.Walk(dirPath, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
+		if path == dirPath {
+			return nil // 跳过传递的目录本身
+		}
+
+		if info.IsDir() {
+			// 删除子目录
+			err := os.RemoveAll(path)
+			if err != nil {
+				return err
+			}
+			fmt.Println("Deleted directory:", path)
+		} else {
+			// 删除文件
+			err := os.Remove(path)
+			if err != nil {
+				return err
+			}
+			fmt.Println("Deleted file:", path)
+		}
+		return nil
+	})
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func getRelativePath(basePath, filePath string) string {
+	relativePath, err := filepath.Rel(basePath, filePath)
+	if err != nil {
+		fmt.Println("Failed to get relative path:", err)
+		return filePath
+	}
+	return relativePath
+}
+
+func moveFile(srcPath, destPath string) error {
+	srcFile, err := os.Open(srcPath)
+	if err != nil {
+		return err
+	}
+	defer srcFile.Close()
+
+	destFile, err := os.Create(destPath)
+	if err != nil {
+		return err
+	}
+	defer destFile.Close()
+
+	_, err = io.Copy(destFile, srcFile)
+	if err != nil {
+		return err
+	}
+
+	err = srcFile.Close()
+	if err != nil {
+		return err
+	}
+
+	err = os.Remove(srcPath)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
