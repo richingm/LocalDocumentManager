@@ -243,15 +243,6 @@ func deleteFilesAndDirs(dirPath string) error {
 	return nil
 }
 
-func getRelativePath(basePath, filePath string) string {
-	relativePath, err := filepath.Rel(basePath, filePath)
-	if err != nil {
-		fmt.Println("Failed to get relative path:", err)
-		return filePath
-	}
-	return relativePath
-}
-
 func moveFile(srcPath, destPath string) error {
 	srcFile, err := os.Open(srcPath)
 	if err != nil {
