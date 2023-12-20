@@ -53,21 +53,31 @@ func main() {
 
 	// 根据book的key和note的id获取内容
 	r.GET("/note/:note_key/node/:node_id", func(c *gin.Context) {
+		type response struct {
+			Status   int    `json:"status"`
+			Content  string `json:"content"`
+			ErrorMsg string `json:"error_msg"`
+		}
+		var res response
 		noteKey := c.Param("note_key")
 		nodeId := c.Param("node_id")
 		noteTreeService := application.NewNoteTreeService()
 		noteName, dir, err := noteTreeService.GetDirAndName(configs.ConfigXx, noteKey)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, err)
+			res.ErrorMsg = err.Error()
+			c.JSON(http.StatusOK, res)
 			return
 		}
 		nodeService := application.NewNodeService()
 		content, err := nodeService.GetContent(dir, noteName, nodeId, FIleSuffix)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, err)
+			res.ErrorMsg = err.Error()
+			c.JSON(http.StatusOK, res)
 			return
 		}
-		c.JSON(http.StatusOK, content)
+		res.Status = http.StatusOK
+		res.Content = content
+		c.JSON(http.StatusOK, res)
 	})
 
 	r.Run(configs.ConfigXx.Server.HTTP.Addr)

@@ -112,6 +112,18 @@
             background-color: #3e8e41;
         }
 
+         pre {
+             background-color: #f4f4f4;
+             padding: 10px;
+             border-radius: 5px;
+         }
+
+        pre code {
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            font-size: 14px;
+            color: #333;
+        }
+
     </style>
 </head>
 <body>
@@ -151,7 +163,7 @@
     <div id="btn-close-modal" class="close-animatedModal">
         关闭
     </div>
-    <div class="modal-content" style="">
+    <div class="modal-content" style="padding: 10px 20px;">
         <!--Your modal content goes here-->
     </div>
 </div>
@@ -160,7 +172,8 @@
 <script type="text/javascript" src="/static/js/jsmind.draggable-node.js"></script>
 <!--<script type="text/javascript" src="/static/js/jsmind.shell.js"></script>-->
 <script type="text/javascript" src="/static/js/jquery-1.11.0.min.js"></script>
-<script src="/static/js/animatedModal.js"></script>
+<!--<script src="/static/js/animatedModal.js"></script>-->
+<script type="text/javascript" src="/static/js/layer/layer.js"></script>
 <script type="text/javascript">
     var _jm = null;
 
@@ -210,33 +223,46 @@
 </script>
 
 <script>
-
+    $("#demo01").click(function () {
+        var note_key = $("#currentNoteKey").html()
+        if (note_key !== "") {
+            var selected_node = _jm.get_selected_node();
+            if (!!selected_node) {
+                $("#animatedModal").css("display", "block");
+                url = "/note/"+note_key+"/node/" + selected_node.id
+                $.ajax({
+                    url: url,
+                    type: "GET",
+                    data: {},
+                    success: function(data) {
+                        if (data.status === 200) {
+                            layer.open({
+                                type: 1,   //0-4的选择,（1代表page层）
+                                area: ['95%', '95%'],
+                                // shade: [0],  //不显示遮罩
+                                // border: [0], //不显示边框
+                                resize: false,
+                                shadeClose: true,
+                                title: [
+                                    '你好，layer。',
+                                    // //自定义标题风格，如果不需要，直接title: '标题' 即可
+                                    // 'border:none; background:#61BA7A; color:#fff;'
+                                ],
+                                bgcolor: '#eee', //设置层背景色
+                                content: "<div style=\"padding: 20px;\">" + data.content + "</div>",
+                                // shift: 'top' //从上动画弹出
+                            });
+                        } else {
+                            alert(data.error_msg)
+                        }
+                    },
+                });
+            }
+        }
+    })
     $("#demo01").animatedModal({
         beforeOpen: function () {
-            var note_key = $("#currentNoteKey").html()
-            if (note_key === "") {
-                $("#animatedModal").css("display", "none");
-            }  else {
-                var selected_node = _jm.get_selected_node();
-                if (!!selected_node) {
-                    $("#animatedModal").css("display", "block");
-                    url = "/note/"+note_key+"/node/" + selected_node.id
-                    $.ajax({
-                        url: url,
-                        type: "GET",
-                        data: {},
-                        success: function(data) {
-                            $(".modal-content").html(data)
-                        },
-                        error: function(xhr, status, error) {
-                            alert("请求失败：" + error);
-                            $("#animatedModal").css("display", "none");
-                        },
-                    });
-                } else {
-                    $("#animatedModal").css("display", "none");
-                }
-            }
+
         },
     });
 
