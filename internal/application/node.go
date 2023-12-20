@@ -162,7 +162,7 @@ func getNoteImagePath(dir string) string {
 	return grandparentDir + "/" + strings.TrimLeft(NoteImageRelativePath, "/")
 }
 
-func (n *NodeService) ExtractImagePaths(htmlString string, destinationDir string) string {
+func (n *NodeService) ExtractImagePaths(fileDir string, htmlString string, destinationDir string) string {
 	destinationDir = getNoteImagePath(destinationDir)
 
 	_ = deleteFilesAndDirs(destinationDir)
@@ -178,9 +178,13 @@ func (n *NodeService) ExtractImagePaths(htmlString string, destinationDir string
 			for i, attr := range n.Attr {
 				if attr.Key == "src" {
 					// 移动图像文件到特定目录
-					newPath := filepath.Join(destinationDir+"/", filepath.Base(attr.Val))
-					if err := moveFile(attr.Val, newPath); err == nil {
-						n.Attr[i].Val = NoteImageRelativePath + "/" + filepath.Base(attr.Val)
+					currentFile := attr.Val
+					if attr.Val == filepath.Base(attr.Val) {
+						currentFile = strings.TrimRight(fileDir, "/") + "/" + attr.Val
+					}
+					newPath := filepath.Join(destinationDir+"/", filepath.Base(currentFile))
+					if err := moveFile(currentFile, newPath); err == nil {
+						n.Attr[i].Val = NoteImageRelativePath + "/" + filepath.Base(currentFile)
 					} else {
 						panic(err)
 					}
@@ -267,11 +271,6 @@ func moveFile(srcPath, destPath string) error {
 	}
 
 	err = srcFile.Close()
-	if err != nil {
-		return err
-	}
-
-	err = os.Remove(srcPath)
 	if err != nil {
 		return err
 	}

@@ -80,7 +80,7 @@ func main() {
 		}
 
 		// 处理图片
-		content = nodeService.ExtractImagePaths(content, getRootPath())
+		content = nodeService.ExtractImagePaths(dir, content, getRootPath())
 
 		res.Title = title
 		res.Status = http.StatusOK
