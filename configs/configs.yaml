@@ -6,7 +6,7 @@ notes:
     children:
       - note_name: "go语言笔记"
         note_key: "go_base"
-        dir: "/Users/ruichengm/Downloads/repo-web-dao-143044/internal/dao"
+        dir: "/Users/ruichengm/knowledge_repository/go_study"
   - note_group: "架构相关"
     children:
       - note_name: "设计模式"
@@ -17,3 +17,8 @@ notes:
       - note_name: "五笔教程"
         note_key: "five_pen"
         dir: "/Users/ruichengm/knowledge_repository/fivePenLearning"
+  - note_group: "前端"
+    children:
+      - note_name: "Dart"
+        note_key: "dart"
+        dir: "/Users/ruichengm/knowledge_repository/dart"
