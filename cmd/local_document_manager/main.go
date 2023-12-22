@@ -40,13 +40,13 @@ func main() {
 	r.GET("/mind/:note_key", func(c *gin.Context) {
 		noteKey := c.Param("note_key")
 		noteTreeService := application.NewNoteTreeService()
-		noteName, dir, err := noteTreeService.GetDirAndName(configs.ConfigXx, noteKey)
+		note, err := noteTreeService.GetNote(configs.ConfigXx, noteKey)
 		if err != nil {
 			c.JSON(http.StatusNotFound, err)
 			return
 		}
 		nodeService := application.NewNodeService()
-		nodes, err := nodeService.GetMind(dir, noteName, 3, FIleSuffix)
+		nodes, err := nodeService.GetMind(note.Dir, note.NoteName, getDisplayLevel(note.DisplayLevel), FIleSuffix)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, err)
 		}
@@ -65,14 +65,14 @@ func main() {
 		noteKey := c.Param("note_key")
 		nodeId := c.Param("node_id")
 		noteTreeService := application.NewNoteTreeService()
-		noteName, dir, err := noteTreeService.GetDirAndName(configs.ConfigXx, noteKey)
+		note, err := noteTreeService.GetNote(configs.ConfigXx, noteKey)
 		if err != nil {
 			res.ErrorMsg = err.Error()
 			c.JSON(http.StatusOK, res)
 			return
 		}
 		nodeService := application.NewNodeService()
-		title, content, err := nodeService.GetContentAndTitle(dir, noteName, nodeId, FIleSuffix)
+		title, content, err := nodeService.GetContentAndTitle(note.Dir, note.NoteName, nodeId, FIleSuffix)
 		if err != nil {
 			res.ErrorMsg = err.Error()
 			c.JSON(http.StatusOK, res)
@@ -80,7 +80,7 @@ func main() {
 		}
 
 		// 处理图片
-		content = nodeService.ExtractImagePaths(dir, content, getRootPath())
+		content = nodeService.ExtractImagePaths(note.Dir, content, getRootPath())
 
 		res.Title = title
 		res.Status = http.StatusOK
@@ -89,6 +89,13 @@ func main() {
 	})
 
 	r.Run(configs.ConfigXx.Server.HTTP.Addr)
+}
+
+func getDisplayLevel(level int64) int64 {
+	if level > 0 {
+		return level
+	}
+	return configs.ConfigXx.DefaultDisplayLevel
 }
 
 // 获取main文件的执行路径

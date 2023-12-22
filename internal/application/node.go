@@ -35,7 +35,7 @@ func (n *NodeService) GetContentByNodeId(dir string, nodeId string) {
 
 }
 
-func convertNodeDoToNodeDto(fieldsDo domain.FileDo, level int) NodeDto {
+func convertNodeDoToNodeDto(fieldsDo domain.FileDo, level int64) NodeDto {
 	expanded := true
 	if level <= 0 {
 		expanded = false
@@ -55,7 +55,7 @@ func convertNodeDoToNodeDto(fieldsDo domain.FileDo, level int) NodeDto {
 	return nodeDto
 }
 
-func (n *NodeService) GetMind(dir string, noteName string, level int, fileSuffix string) (NodeDto, error) {
+func (n *NodeService) GetMind(dir string, noteName string, level int64, fileSuffix string) (NodeDto, error) {
 	nodeBiz := domain.NewFileBiz()
 	var res NodeDto
 	fieldDo, err := nodeBiz.GetFiles(dir, fileSuffix)

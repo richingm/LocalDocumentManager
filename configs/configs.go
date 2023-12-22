@@ -2,7 +2,6 @@ package configs
 
 import (
 	_ "embed"
-	"fmt"
 	"gopkg.in/yaml.v3"
 )
 
@@ -12,7 +11,6 @@ var configFile string
 var ConfigXx Config
 
 func InitConfig() {
-	fmt.Println(configFile)
 	err := yaml.Unmarshal([]byte(configFile), &ConfigXx)
 	if err != nil {
 		panic(err)
@@ -20,8 +18,9 @@ func InitConfig() {
 }
 
 type Config struct {
-	Server ServerConfig `yaml:"server"`
-	Notes  []NoteGroup  `yaml:"notes"`
+	Server              ServerConfig `yaml:"server"`
+	Notes               []NoteGroup  `yaml:"notes"`
+	DefaultDisplayLevel int64        `yaml:"default_display_level"`
 }
 
 type ServerConfig struct {
@@ -38,7 +37,8 @@ type NoteGroup struct {
 }
 
 type NoteChild struct {
-	NoteName string `yaml:"note_name"`
-	NoteKey  string `yaml:"note_key"`
-	Dir      string `yaml:"dir"`
+	NoteName     string `yaml:"note_name"`
+	NoteKey      string `yaml:"note_key"`
+	Dir          string `yaml:"dir"`
+	DisplayLevel int64  `yaml:"display_level"`
 }

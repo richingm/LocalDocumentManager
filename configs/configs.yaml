@@ -17,8 +17,11 @@ notes:
       - note_name: "五笔教程"
         note_key: "five_pen"
         dir: "/Users/ruichengm/knowledge_repository/fivePenLearning"
+        display_level: 999
   - note_group: "前端"
     children:
       - note_name: "Dart"
         note_key: "dart"
         dir: "/Users/ruichengm/knowledge_repository/dart"
+        display_level: 999
+default_display_level: 999
