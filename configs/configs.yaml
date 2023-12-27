@@ -1,7 +1,15 @@
 server:
   http:
     addr: 0.0.0.0:8000
+docs:
+  - "data"
+menus_yaml_file: "menus.yaml"
 notes:
+  - note_group: 硬实力
+    children:
+      - note_name: "算法"
+        note_key: "algorithm"
+        dir: "/Users/ruichengm/knowledge_repository/algorithm"
   - note_group: "Go"
     children:
       - note_name: "go语言笔记"

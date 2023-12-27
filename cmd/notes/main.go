@@ -1,12 +1,14 @@
 package main
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"path/filepath"
 	"richingm/LocalDocumentManager/configs"
 	"richingm/LocalDocumentManager/internal/application"
 	"runtime"
+	"strings"
 )
 
 const (
@@ -24,29 +26,48 @@ func main() {
 	r.LoadHTMLGlob("templates/*")
 
 	r.GET("/", func(c *gin.Context) {
-		noteTreeService := application.NewNoteTreeService()
-		treeList := noteTreeService.GetTree(configs.ConfigXx)
 		c.HTML(
 			http.StatusOK,
 			"index.tmpl",
-			gin.H{
-				"treeList": treeList,
-				"aaa":      "花花草草",
-			},
+			gin.H{},
 		)
+	})
+
+	// 根据note的key获取脑图数据
+	r.GET("/menus", func(c *gin.Context) {
+		type response struct {
+			Status   int    `json:"status"`
+			Content  string `json:"content"`
+			ErrorMsg string `json:"error_msg"`
+		}
+		var res response
+		res.Status = http.StatusOK
+		menuService := application.NewMenuService()
+		menuDtoList, err := getMenuList(menuService)
+		if err != nil {
+			res.ErrorMsg = err.Error()
+			c.JSON(http.StatusOK, res)
+			return
+		}
+
+		res.Content = menuService.ConvertMenusToString(menuDtoList)
+		c.JSON(http.StatusOK, res)
 	})
 
 	// 根据note的key获取脑图数据
 	r.GET("/mind/:note_key", func(c *gin.Context) {
 		noteKey := c.Param("note_key")
 		noteTreeService := application.NewNoteTreeService()
-		note, err := noteTreeService.GetNote(configs.ConfigXx, noteKey)
+
+		menuService := application.NewMenuService()
+		menuDtoList, err := getMenuList(menuService)
+		note := noteTreeService.GetNote(menuDtoList, noteKey)
 		if err != nil {
 			c.JSON(http.StatusNotFound, err)
 			return
 		}
 		nodeService := application.NewNodeService()
-		nodes, err := nodeService.GetMind(note.Dir, note.NoteName, getDisplayLevel(note.DisplayLevel), FIleSuffix)
+		nodes, err := nodeService.GetMind(note.DirPath, note.MenuName, getDisplayLevel(3), FIleSuffix)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, err)
 		}
@@ -64,15 +85,17 @@ func main() {
 		var res response
 		noteKey := c.Param("note_key")
 		nodeId := c.Param("node_id")
+		menuService := application.NewMenuService()
+		menuDtoList, err := getMenuList(menuService)
 		noteTreeService := application.NewNoteTreeService()
-		note, err := noteTreeService.GetNote(configs.ConfigXx, noteKey)
+		note := noteTreeService.GetNote(menuDtoList, noteKey)
 		if err != nil {
 			res.ErrorMsg = err.Error()
 			c.JSON(http.StatusOK, res)
 			return
 		}
 		nodeService := application.NewNodeService()
-		title, content, err := nodeService.GetContentAndTitle(note.Dir, note.NoteName, nodeId, FIleSuffix)
+		title, content, err := nodeService.GetContentAndTitle(note.DirPath, note.MenuName, nodeId, FIleSuffix)
 		if err != nil {
 			res.ErrorMsg = err.Error()
 			c.JSON(http.StatusOK, res)
@@ -80,7 +103,7 @@ func main() {
 		}
 
 		// 处理图片
-		content = nodeService.ExtractImagePaths(note.Dir, content, getRootPath())
+		content = nodeService.ExtractImagePaths(note.DirPath, content, getRootPath())
 
 		res.Title = title
 		res.Status = http.StatusOK
@@ -89,6 +112,22 @@ func main() {
 	})
 
 	r.Run(configs.ConfigXx.Server.HTTP.Addr)
+}
+
+func getMenuList(menuService *application.MenuService) ([]application.MenuDto, error) {
+	rootPath := getRootPath()
+	menuDtoList := make([]application.MenuDto, 0)
+	for _, docPath := range configs.ConfigXx.Docs {
+		realPath := fmt.Sprintf("%s/../../%s/%s", strings.TrimRight(rootPath, "/"),
+			strings.TrimRight(strings.TrimLeft(docPath, "/"), "/"),
+			configs.ConfigXx.MenusYamlFile)
+		menuDtos, err := menuService.GetMenus(realPath)
+		if err != nil {
+			return nil, err
+		}
+		menuDtoList = append(menuDtoList, menuDtos...)
+	}
+	return menuDtoList, nil
 }
 
 func getDisplayLevel(level int64) int64 {

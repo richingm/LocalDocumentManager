@@ -19,8 +19,10 @@ func InitConfig() {
 
 type Config struct {
 	Server              ServerConfig `yaml:"server"`
+	Docs                []string     `yaml:"docs"`
 	Notes               []NoteGroup  `yaml:"notes"`
 	DefaultDisplayLevel int64        `yaml:"default_display_level"`
+	MenusYamlFile       string       `yaml:"menus_yaml_file"`
 }
 
 type ServerConfig struct {

@@ -5,17 +5,11 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <title>jsMind</title>
     <link type="text/css" rel="stylesheet" href="/static/css/jsmind.css"/>
-    <link rel="stylesheet" href="/static/css/normalize.min.css">
-    <link rel="stylesheet" href="/static/css/animate.min.css">
-    <link rel="stylesheet" href="/static/css/style.css">
-    <style>
-        #btn-close-modal {
-            width: 100%;
-            text-align: center;
-            cursor: pointer;
-            color: #fff;
-        }
-    </style>
+    <link rel="stylesheet" type="text/css" href="/static/css/left-side-menu.css">
+    <link rel="stylesheet" type="text/css" href="/static/font/iconfont.css">
+    <script type="text/javascript" src="/static/js/jquery-1.11.0.min.js"></script>
+    <script src="/static/js/jquery.slimscroll.min.js"></script>
+    <script type="text/javascript" src="/static/js/left-side-menu.js"></script>
     <style>
         html, body {
             height: 100%;
@@ -39,14 +33,12 @@
 
         .container {
             display: flex;
-            height: calc(100% - 100px); /* 减去头部的高度 */
+            height: calc(100%); /* 减去头部的高度 */
         }
 
         .container-right {
             flex: 1;
             min-width: 90%;
-            max-width: 90%;
-            margin-left: 50px;
             background-color: white;
             display: inline;
         }
@@ -59,39 +51,6 @@
             background-color: white;
             overflow-y: auto; /* 垂直滚动条 */
             display: inline;
-        }
-
-        .collapsed {
-            width: 0 !important;
-            overflow: hidden;
-        }
-
-
-        .popup-container {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 9999;
-        }
-
-        .popup-content {
-            position: fixed;
-            bottom: 0;
-            right: 0;
-            width: 300px;
-            height: 250px;
-            background-color: white;
-            transform: translateY(100%);
-            transition: transform 0.3s ease;
-            padding: 20px;
-        }
-
-        .popup-container.show .popup-content {
-            transform: translateY(0);
         }
 
         .button {
@@ -175,22 +134,25 @@
 </head>
 <body>
 <div class="container">
-    <div class="sidebar" id="lvc-nav">
-        <ul class="lvc-nav">
-            {{range $index, $item := .treeList}}
-            <li class="nav-pic1 next-layer" title="{{ $item.GroupName}}">
-                <a>{{ $item.GroupName}}</a>
-                {{ if $item.Children }}
-                <ol>
-                    {{range $i, $v := $item.Children}}
-                    <li note-key="{{ $v.NoteKey}}" title="{{ $v.NoteName}}">{{ $v.NoteName}}</li>
-                    {{ end }}
-                </ol>
-                {{ end }}
-            </li>
-            {{ end}}
-        </ul>
-        <button type="button" class="btn-nav"></button>
+    <div class="left-side-menu" >
+        <div class="lsm-expand-btn">
+            <div class="lsm-mini-btn">
+                <label>
+                    <input type="checkbox" checked="checked">
+                    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="50" cy="50" r="30" />
+                        <path class="line--1" d="M0 40h62c18 0 18-20-17 5L31 55" />
+                        <path class="line--2" d="M0 50h80" />
+                        <path class="line--3" d="M0 60h62c18 0 18 20-17-5L31 45" />
+                    </svg>
+                </label>
+            </div>
+        </div>
+        <div class="lsm-container">
+            <div class="lsm-scroll" >
+                <div class="lsm-sidebar"></div>
+            </div>
+        </div>
     </div>
     <div class="container-right">
         <div class="top">
@@ -207,12 +169,13 @@
 <script type="text/javascript" src="/static/js/jsmind.js"></script>
 <script type="text/javascript" src="/static/js/jsmind.draggable-node.js"></script>
 <!--<script type="text/javascript" src="/static/js/jsmind.shell.js"></script>-->
-<script type="text/javascript" src="/static/js/jquery-1.11.0.min.js"></script>
 <script type="text/javascript" src="/static/js/layer/layer.js"></script>
 <script type="text/javascript">
     var _jm = null;
-
     function load_jsmind(note_key) {
+        if (note_key === "") {
+            return
+        }
         url = "/mind/" + note_key
         $.ajax({
             url: url,
@@ -283,7 +246,7 @@
                                 // shift: 'top' //从上动画弹出
                             });
                         } else {
-                            alert(data.error_msg)
+                            layer.open({title: '提示',content: data.error_msg});
                         }
                     },
                 });
@@ -293,51 +256,121 @@
 </script>
 
 <script type="text/javascript">
-    $(document).ready(function () {
-        //展开收起
-        $(".btn-nav").click(function () {
-            $(".sidebar").toggleClass("lvc-close")
-            $("ol").toggleClass("small-ol")
-            $(".next-layer ol").hide()
+    $(function(){
+        // ajax获取菜单
+        url = "/menus"
+        $.ajax({
+            url: url,
+            type: "GET",
+            success: function(data) {
+                if (data.status === 200) {
+                    $(".lsm-sidebar").html(data.content)
+                } else {
+                    layer.open({
+                        title: '接口异常'
+                        ,content: data.error_msg
+                    });
+                }
+                $('.lsm-scroll').slimscroll({
+                    height: 'auto',
+                    position: 'right',
+                    railOpacity: 1,
+                    size: "5px",
+                    opacity: .4,
+                    color: '#fffafa',
+                    wheelStep: 5,
+                    touchScrollStep: 50
+                });
+                $('.lsm-container ul ul').css("display", "none");
+                // lsm-sidebar收缩展开
+                $('.lsm-sidebar a').on('click',function(){
+                    $('.lsm-scroll').slimscroll({
+                        height: 'auto',
+                        position: 'right',
+                        size: "8px",
+                        color: '#9ea5ab',
+                        wheelStep: 5,
+                        touchScrollStep: 50
+                    });
+                    if (!$('.left-side-menu').hasClass('lsm-mini')) {
+                        $(this).parent("li").siblings("li.lsm-sidebar-item").children('ul').slideUp(200);
+                        if ($(this).next().css('display') == "none") {
+                            //展开未展开
+                            // $('.lsm-sidebar-item').children('ul').slideUp(300);
+                            $(this).next('ul').slideDown(200);
+                            $(this).parent('li').addClass('lsm-sidebar-show').siblings('li').removeClass('lsm-sidebar-show');
+                        }else{
+                            //收缩已展开
+                            $(this).next('ul').slideUp(200);
+                            //$('.lsm-sidebar-item.lsm-sidebar-show').removeClass('lsm-sidebar-show');
+                            $(this).parent('li').removeClass('lsm-sidebar-show');
+                        }
+                    }
+                    $("#jsmind_container").html("")
+                    $("#note-title").html($(this).attr("title"))
+                    $("#currentNoteKey").html($(this).attr("note-key"))
+                    load_jsmind($(this).attr("note-key"));
+                });
+                //lsm-mini
+                $('.lsm-mini-btn svg').on('click',function(){
+                    if ($('.lsm-mini-btn input[type="checkbox"]').prop("checked")) {
+                        $('.lsm-sidebar-item.lsm-sidebar-show').removeClass('lsm-sidebar-show');
+                        $('.lsm-container ul').removeAttr('style');
+                        $('.left-side-menu').addClass('lsm-mini');
+                        $('.left-side-menu').stop().animate({width : 60},200);
+                    }else{
+                        $('.left-side-menu').removeClass('lsm-mini');
+                        $('.lsm-container ul ul').css("display", "none");
+                        $('.left-side-menu').stop().animate({width: 240},200);
+                    }
 
-            if ($("#lvc-nav").hasClass('lvc-close')) {
-                $(".next-layer ").removeClass("arrow")
-                $(".sidebar").width("auto")
-            }
-        })
+                });
 
-        //选中状态
-        $(".lvc-nav li").click(function () {
-            $(this).siblings().find('ol').hide()
-            $(this).addClass("active").siblings().removeClass("active")
-            $("#currentNoteKey").html("")
-            $("#jsmind_container").html("")
-        })
+                $(document).on('mouseover','.lsm-mini .lsm-container ul:first>li',function(){
+                    $(".lsm-popup.third").hide();
+                    $(".lsm-popup.second").length == 0 && ($(".lsm-container").append("<div class='second lsm-popup lsm-sidebar'><div></div></div>"));
+                    $(".lsm-popup.second>div").html($(this).html());
+                    $(".lsm-popup.second").show();
+                    $(".lsm-popup.third").hide();
+                    var top = $(this).offset().top;
+                    var d = $(window).height() - $(".lsm-popup.second>div").height();
+                    if(d - top <= 0 ){
+                        top  = d >= 0 ?  d - 8 : 0;
+                    }
+                    $(".lsm-popup.second").stop().animate({"top":top}, 100);
+                });
 
-        //选中子集清除父级active
-        $("ol>li").click(function (e) {
-            console.log('ol>li clicked')
-            e.stopPropagation()
-            $(this).parent().parent().removeClass("active")
-            $("#jsmind_container").html("")
-            $("#note-title").html($(this).attr("title"))
-            $("#currentNoteKey").html($(this).attr("note-key"))
-            load_jsmind($(this).attr("note-key"));
-        })
+                $(document).on('mouseover','.second.lsm-popup.lsm-sidebar > div > ul > li',function(){
+                    if(!$(this).hasClass("lsm-sidebar-item")){
+                        $(".lsm-popup.third").hide();
+                        return;
+                    }
+                    $(".lsm-popup.third").length == 0 && ($(".lsm-container").append("<div class='third lsm-popup lsm-sidebar'><div></div></div>"));
+                    $(".lsm-popup.third>div").html($(this).html());
+                    $(".lsm-popup.third").show();
+                    var top = $(this).offset().top;
+                    var d = $(window).height() - $(".lsm-popup.third").height();
+                    if(d - top <= 0 ){
+                        top  = d >= 0 ?  d - 8 : 0;
+                    }
+                    $(".lsm-popup.third").stop().animate({"top":top}, 100);
+                });
 
-        //二级导航展开收起
-        $(".next-layer").click(function () {
-            $(this).children("ol").toggle();
-            $(this).toggleClass("arrow").siblings().removeClass("arrow")
-        })
+                $(document).on('mouseleave','.lsm-mini .lsm-container ul:first, .lsm-mini .slimScrollBar,.second.lsm-popup ,.third.lsm-popup',function(){
+                    $(".lsm-popup.second").hide();
+                    $(".lsm-popup.third").hide();
+                });
 
-        $("ol li").click(function () {
-            if ($("ol").hasClass('small-ol')) {
-                $(".small-ol").hide();
-                $(this).parent().parent().addClass("active")
-            }
-        })
-    })
+                $(document).on('mouseover','.lsm-mini .slimScrollBar,.second.lsm-popup',function(){
+                    $(".lsm-popup.second").show();
+                });
+                $(document).on('mouseover','.third.lsm-popup',function(){
+                    $(".lsm-popup.second").show();
+                    $(".lsm-popup.third").show();
+                });
+            },
+        });
+    });
 </script>
 
 </body>

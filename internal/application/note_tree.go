@@ -1,10 +1,5 @@
 package application
 
-import (
-	"errors"
-	"richingm/LocalDocumentManager/configs"
-)
-
 type NoteTreeService struct {
 }
 
@@ -12,19 +7,32 @@ func NewNoteTreeService() *NoteTreeService {
 	return &NoteTreeService{}
 }
 
-func (b *NoteTreeService) GetTree(config configs.Config) []configs.NoteGroup {
-	return config.Notes
+func (b *NoteTreeService) GetNote(menuDtos []MenuDto, noteKey string) *MenuDto {
+	for _, menuDto := range menuDtos {
+		note := loopGetNote(menuDto, noteKey)
+		if note != nil {
+			return note
+		}
+	}
+	return nil
 }
 
-func (b *NoteTreeService) GetNote(config configs.Config, noteKey string) (configs.NoteChild, error) {
-	for _, item := range config.Notes {
-		if len(item.Children) > 0 {
-			for _, val := range item.Children {
-				if noteKey == val.NoteKey {
-					return val, nil
-				}
+func loopGetNote(menuDto MenuDto, noteKey string) *MenuDto {
+	if menuDto.MenuKey == noteKey {
+		return &MenuDto{
+			MenuKey:  menuDto.MenuKey,
+			MenuName: menuDto.MenuName,
+			DirName:  menuDto.DirName,
+			DirPath:  menuDto.DirPath,
+		}
+	}
+	if len(menuDto.Children) > 0 {
+		for _, val := range menuDto.Children {
+			note := loopGetNote(val, noteKey)
+			if note != nil {
+				return note
 			}
 		}
 	}
-	return configs.NoteChild{}, errors.New("不存在")
+	return nil
 }
