@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"os"
 	"path/filepath"
 	"richingm/LocalDocumentManager/configs"
 	"richingm/LocalDocumentManager/internal/application"
@@ -56,6 +57,14 @@ func main() {
 
 	// 根据note的key获取脑图数据
 	r.GET("/mind/:note_key", func(c *gin.Context) {
+		type response struct {
+			Status   int                 `json:"status"`
+			Content  application.NodeDto `json:"content"`
+			ErrorMsg string              `json:"error_msg"`
+		}
+		var res response
+		res.Status = http.StatusOK
+
 		noteKey := c.Param("note_key")
 		noteTreeService := application.NewNoteTreeService()
 
@@ -63,15 +72,26 @@ func main() {
 		menuDtoList, err := getMenuList(menuService)
 		note := noteTreeService.GetNote(menuDtoList, noteKey)
 		if err != nil {
-			c.JSON(http.StatusNotFound, err)
+			res.ErrorMsg = err.Error()
+			c.JSON(http.StatusOK, res)
 			return
 		}
+		_, err = os.Stat(note.DirPath)
+		if err != nil {
+			res.ErrorMsg = "知识库不存在"
+			c.JSON(http.StatusOK, res)
+			return
+		}
+
 		nodeService := application.NewNodeService()
 		nodes, err := nodeService.GetMind(note.DirPath, note.MenuName, getDisplayLevel(3), FIleSuffix)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, err)
+			res.ErrorMsg = "知识库不存在"
+			c.JSON(http.StatusOK, res)
+			return
 		}
-		c.JSON(http.StatusOK, nodes)
+		res.Content = nodes
+		c.JSON(http.StatusOK, res)
 	})
 
 	// 根据book的key和note的id获取内容
