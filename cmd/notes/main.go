@@ -115,20 +115,30 @@ func main() {
 			return
 		}
 		nodeService := application.NewNodeService()
-		title, content, err := nodeService.GetContentAndTitle(note.DirPath, note.MenuName, nodeId, FIleSuffix)
+		filePath, title, content, err := nodeService.GetContentAndTitle(note.DirPath, note.MenuName, nodeId, FIleSuffix)
 		if err != nil {
 			res.ErrorMsg = err.Error()
 			c.JSON(http.StatusOK, res)
 			return
 		}
 
+		mountService := application.NewMountService()
+		mountMap, _ := mountService.GetDockerPath("/proc/self/mountinfo")
+
 		// 处理图片
-		content = nodeService.ExtractImagePaths(note.DirPath, content, getRootPath())
+		content = nodeService.ExtractImagePaths(note.DirPath, filePath, content, getRootPath(), mountMap)
 
 		res.Title = title
 		res.Status = http.StatusOK
 		res.Content = content
 		c.JSON(http.StatusOK, res)
+	})
+
+	// 根据book的key和note的id获取内容
+	r.GET("/mount", func(c *gin.Context) {
+		mountService := application.NewMountService()
+		info, _ := mountService.GetMountInfo("/proc/self/mountinfo")
+		c.JSON(http.StatusOK, info)
 	})
 
 	r.Run(configs.ConfigXx.Server.HTTP.Addr)

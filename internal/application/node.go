@@ -66,31 +66,31 @@ func (n *NodeService) GetMind(dir string, noteName string, level int64, fileSuff
 	return convertNodeDoToNodeDto(fieldDo, level), nil
 }
 
-func (n *NodeService) GetContentAndTitle(dir string, noteName string, nodeId string, fileSuffix string) (string, string, error) {
+func (n *NodeService) GetContentAndTitle(dir string, noteName string, nodeId string, fileSuffix string) (string, string, string, error) {
 	fileBiz := domain.NewFileBiz()
 	fieldDo, err := fileBiz.GetFiles(dir, fileSuffix)
 	if err != nil {
-		return "", "", err
+		return "", "", "", err
 	}
 
 	isFile, filePath, title := getPathAndTitleByNodeId(fieldDo, nodeId)
 	if !isFile {
-		return "", "", errors.New("不是文件")
+		return "", "", "", errors.New("不是文件")
 	}
 	if filePath == "" {
-		return "", "", errors.New("数据不存在")
+		return "", "", "", errors.New("数据不存在")
 	}
 
 	content, err := fileBiz.GetFileContent(filePath)
 	if err != nil {
-		return "", "", err
+		return "", "", "", err
 	}
 
 	content = strings.Replace(content, "\n\n", "<br>", -1)
 
 	content = addBlankTargetAttribute(content)
 
-	return fmt.Sprintf("%s/%s", noteName, title), content, nil
+	return filePath, fmt.Sprintf("%s/%s", noteName, title), content, nil
 }
 
 func getPathAndTitleByNodeId(file domain.FileDo, targetID string) (bool, string, string) {
@@ -164,7 +164,7 @@ func getNoteImagePath(dir string) string {
 	return grandparentDir + "/" + strings.TrimLeft(NoteImageRelativePath, "/")
 }
 
-func (n *NodeService) ExtractImagePaths(fileDir string, htmlString string, destinationDir string) string {
+func (n *NodeService) ExtractImagePaths(fileDir string, filePath, htmlString string, destinationDir string, mountMap map[string]string) string {
 	destinationDir = getNoteImagePath(destinationDir)
 
 	_ = deleteFilesAndDirs(destinationDir)
@@ -183,6 +183,11 @@ func (n *NodeService) ExtractImagePaths(fileDir string, htmlString string, desti
 					currentFile := attr.Val
 					if attr.Val == filepath.Base(attr.Val) {
 						currentFile = strings.TrimRight(fileDir, "/") + "/" + attr.Val
+					}
+					if filepath.IsAbs(currentFile) {
+						currentFile = replaceMountPath(currentFile, mountMap)
+					} else {
+						currentFile = fmt.Sprintf("%s/%s", strings.TrimRight(filepath.Dir(filePath), "/"), strings.TrimLeft(currentFile, "./"))
 					}
 					newPath := filepath.Join(destinationDir+"/", filepath.Base(currentFile))
 					if err := moveFile(currentFile, newPath); err == nil {
@@ -208,6 +213,22 @@ func (n *NodeService) ExtractImagePaths(fileDir string, htmlString string, desti
 	}
 
 	return sb.String()
+}
+
+func replaceMountPath(currentPath string, mountMap map[string]string) string {
+	for fromStr, toStr := range mountMap {
+		if strings.HasPrefix(currentPath, fromStr) {
+			return replaceFirstCharacter(currentPath, fromStr, toStr)
+		}
+	}
+	return currentPath
+}
+
+func replaceFirstCharacter(str, fromStr, toStr string) string {
+	if strings.HasPrefix(str, fromStr) {
+		return strings.Replace(str, fromStr, toStr, 1)
+	}
+	return str
 }
 
 func deleteFilesAndDirs(dirPath string) error {
