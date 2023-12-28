@@ -11,15 +11,16 @@
     <script src="/static/js/jquery.slimscroll.min.js"></script>
     <style>
         html, body {
-            height: 100%;
             margin: 0;
             padding: 0;
+            height: 100%;
         }
 
         .top {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            height: 40px;
         }
 
         .top h1 {
@@ -33,13 +34,16 @@
         .container {
             display: flex;
             height: calc(100%); /* 减去头部的高度 */
+            overflow: scroll; /* 或者 overflow: scroll; */
         }
 
         .container-right {
             flex: 1;
             min-width: 90%;
+            height: calc(100% - 40px);
             background-color: white;
             display: inline;
+            overflow: scroll; /* 或者 overflow: scroll; */
         }
 
         #jsmind_container {
