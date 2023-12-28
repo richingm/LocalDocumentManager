@@ -11,6 +11,7 @@ import (
 	"path/filepath"
 	"richingm/LocalDocumentManager/internal/domain"
 	"strings"
+	"unicode"
 )
 
 const (
@@ -40,9 +41,13 @@ func convertNodeDoToNodeDto(fieldsDo domain.FileDo, level int64) NodeDto {
 	if level <= 0 {
 		expanded = false
 	}
+
+	topic := removeLeadingNumbersAndDots(fieldsDo.Name)
+	topic = strings.TrimSuffix(topic, ".md")
+
 	nodeDto := NodeDto{
 		ID:       generateID(fieldsDo.Path),
-		Topic:    fieldsDo.Name,
+		Topic:    topic,
 		Expanded: expanded,
 	}
 
@@ -53,6 +58,15 @@ func convertNodeDoToNodeDto(fieldsDo domain.FileDo, level int64) NodeDto {
 		nodeDto.Children = append(nodeDto.Children, childDto)
 	}
 	return nodeDto
+}
+
+func removeLeadingNumbersAndDots(str string) string {
+	for i, ch := range str {
+		if !unicode.IsNumber(ch) && ch != '.' {
+			return str[i:]
+		}
+	}
+	return ""
 }
 
 func (n *NodeService) GetMind(dir string, noteName string, level int64, fileSuffix string) (NodeDto, error) {
