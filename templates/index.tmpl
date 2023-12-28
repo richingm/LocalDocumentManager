@@ -18,6 +18,9 @@
 
         .top {
             display: flex;
+            z-index: 10; /* 设置较高的堆叠顺序值 */
+            position: fixed;
+            width: 90%;
             justify-content: space-between;
             align-items: center;
             height: 40px;
@@ -51,6 +54,7 @@
             min-width: 90%;
             max-width: 90%;
             margin-left: 50px;
+            padding-top: 40px;
             background-color: white;
             overflow-y: auto; /* 垂直滚动条 */
             display: inline;
