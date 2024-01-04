@@ -9,6 +9,7 @@
     <link rel="stylesheet" type="text/css" href="/static/font/iconfont.css">
     <script type="text/javascript" src="/static/js/jquery-1.11.0.min.js"></script>
     <script src="/static/js/jquery.slimscroll.min.js"></script>
+    <script src="/static/js/imagePreview.min.js"></script>
     <style>
         html, body {
             margin: 0;
@@ -174,7 +175,7 @@
 
 
 <script type="text/javascript" src="/static/js/jsmind.js"></script>
-<script type="text/javascript" src="/static/js/jsmind.draggable-node.js"></script>
+{{/*<script type="text/javascript" src="/static/js/jsmind.draggable-node.js"></script>*/}}
 <!--<script type="text/javascript" src="/static/js/jsmind.shell.js"></script>-->
 <script type="text/javascript" src="/static/js/layer/layer.js"></script>
 <script type="text/javascript">
@@ -243,16 +244,17 @@
                         if (data.status === 200) {
                             layer.open({
                                 type: 1,   //0-4的选择,（1代表page层）
-                                area: ['95%', '95%'],
+                                area: ['100%', '100%'],
                                 // shade: [0],  //不显示遮罩
                                 // border: [0], //不显示边框
                                 resize: false,
                                 shadeClose: true,
                                 title: [data.title],
                                 bgcolor: '#eee', //设置层背景色
-                                content: "<div style=\"padding: 20px;\">" + data.content + "</div>",
+                                content: "<div style=\"padding: 20px;\" id='detail'>" + data.content + "</div>",
                                 // shift: 'top' //从上动画弹出
                             });
+                            ImagePreview.init({id:"details"});
                         } else {
                             layer.open({title: '提示',content: data.error_msg});
                         }
