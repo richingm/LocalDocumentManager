@@ -7,6 +7,7 @@
     <link type="text/css" rel="stylesheet" href="/static/css/jsmind.css"/>
     <link rel="stylesheet" type="text/css" href="/static/css/left-side-menu.css">
     <link rel="stylesheet" type="text/css" href="/static/font/iconfont.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/virgo.css">
     <script type="text/javascript" src="/static/js/jquery-1.11.0.min.js"></script>
     <script src="/static/js/jquery.slimscroll.min.js"></script>
     <script src="/static/js/imagePreview.min.js"></script>
@@ -79,65 +80,6 @@
             background-color: #3e8e41;
         }
 
-         pre {
-             background-color: #f4f4f4;
-             padding: 10px;
-             border-radius: 5px;
-         }
-
-        pre code {
-            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
-            font-size: 14px;
-            color: #333;
-        }
-
-        table {
-            min-width: 50%;
-            width: auto;
-            border-collapse: collapse;
-        }
-
-        th, td {
-            padding: 8px;
-            text-align: left;
-            border: 1px solid #000;
-        }
-
-        th {
-            background-color: #ccc;
-            color: #fff;
-        }
-
-        h1 {
-            font-size: 2em;
-            font-weight: bold;
-        }
-
-        h2 {
-            font-size: 1.5em;
-            font-weight: bold;
-        }
-
-        h3 {
-            font-size: 1.17em;
-            font-weight: bold;
-        }
-
-        h4 {
-            font-size: 1em;
-            font-weight: bold;
-        }
-
-        h5 {
-            font-size: 0.83em;
-            font-weight: bold;
-        }
-
-        h6 {
-            font-size: 0.67em;
-            font-weight: bold;
-        }
-
     </style>
 </head>
 <body>
@@ -175,8 +117,6 @@
 
 
 <script type="text/javascript" src="/static/js/jsmind.js"></script>
-{{/*<script type="text/javascript" src="/static/js/jsmind.draggable-node.js"></script>*/}}
-<!--<script type="text/javascript" src="/static/js/jsmind.shell.js"></script>-->
 <script type="text/javascript" src="/static/js/layer/layer.js"></script>
 <script type="text/javascript">
     var _jm = null;
@@ -244,7 +184,7 @@
                         if (data.status === 200) {
                             layer.open({
                                 type: 1,   //0-4的选择,（1代表page层）
-                                area: ['100%', '100%'],
+                                area: ['98%', '98%'],
                                 // shade: [0],  //不显示遮罩
                                 // border: [0], //不显示边框
                                 resize: false,
@@ -254,7 +194,7 @@
                                 content: "<div style=\"padding: 20px;\" id='detail'>" + data.content + "</div>",
                                 // shift: 'top' //从上动画弹出
                             });
-                            ImagePreview.init({id:"details"});
+                            ImagePreview.init({id:$("#detail p img")});
                         } else {
                             layer.open({title: '提示',content: data.error_msg});
                         }
