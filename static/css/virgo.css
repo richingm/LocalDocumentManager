@@ -175,7 +175,7 @@ html {
 }
 
 body {
-  color: #343a40;
+  /*color: #343a40;*/
   font-family: jostFont, jinkaiFont, "kaiti", -apple-system, blinkmacsystemfont, "Segoe UI", roboto, "Helvetica Neue", arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   font-size: 16px;
   line-height: 1.5;
@@ -324,7 +324,7 @@ li code {
 pre,
 pre code {
   font-family: romanFont, jinkaiFont, "kaiti", sfmono-regular, menlo, monaco, consolas, "Liberation Mono", "Courier New", monospace;
-  background-color: #f4f4f4;
+  /*background-color: #000000;*/
 }
 
 ol {
@@ -1249,7 +1249,7 @@ body #write > p > span.md-comment {
 }
 body pre {
   font-size: 14px !important;
-  background: #f6f8fa !important;
+  background-color: lightgray !important;
 }
 body pre.md-meta-block {
   padding: 6px;
