@@ -1,0 +1,47 @@
+body {
+	&.on-focus-mode {
+		color: #c8c8c8;
+	}
+
+	#write {
+		width: 766px;
+	}
+
+	#write > p > span {
+		width: auto;
+
+		&.md-comment {
+			font-size: 14px;
+			color: #969696;
+		}
+	}
+
+	// 代码块字体大小
+    pre {
+        font-size: 14px !important;
+		background: #f6f8fa !important;
+
+		&.md-meta-block {
+			padding: 6px;
+		}
+    }
+
+	.CodeMirror-code {
+		padding: 4px;
+	}
+
+	// 引用间距
+	#write blockquote {
+		margin: 16px 0;
+	}
+
+
+}
+
+// @media screen and (min-width: 1446px) {
+// 	body {
+// 		content {
+// 			padding: 0 20%;
+// 		}
+// 	}
+// }
