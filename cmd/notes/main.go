@@ -161,9 +161,6 @@ func getMenuList(menuService *application.MenuService) ([]application.MenuDto, e
 }
 
 func getDisplayLevel(level int64) int64 {
-	if level > 0 {
-		return level
-	}
 	return configs.ConfigXx.DefaultDisplayLevel
 }
 
