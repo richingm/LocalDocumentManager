@@ -104,4 +104,12 @@ func InitRouter(r *gin.Engine) {
 		res.Content = dto.Content
 		c.JSON(http.StatusOK, res)
 	})
+
+	r.GET("/article", func(c *gin.Context) {
+		c.HTML(
+			http.StatusOK,
+			"create.tmpl",
+			gin.H{},
+		)
+	})
 }
