@@ -110,6 +110,7 @@
             <div id="currentNoteKey" style="display: none;">
             </div>
             <a id="demo01" href="#" class="button">查看内容</a>
+            <a id="demo02" href="#" class="button">添加文章</a>
         </div>
         <div id="jsmind_container"></div>
     </div>
@@ -171,36 +172,76 @@
 
 <script>
     $("#demo01").click(function () {
+            var note_key = $("#currentNoteKey").html()
+            if (note_key !== "") {
+                var selected_node = _jm.get_selected_node();
+                if (!!selected_node) {
+                    url = "/note/" + selected_node.id
+                    $.ajax({
+                        url: url,
+                        type: "GET",
+                        data: {},
+                        success: function(data) {
+                            if (data.status === 200) {
+                                layer.open({
+                                    type: 1,   //0-4的选择,（1代表page层）
+                                    area: ['98%', '98%'],
+                                    // shade: [0],  //不显示遮罩
+                                    // border: [0], //不显示边框
+                                    resize: false,
+                                    shadeClose: true,
+                                    title: [data.title],
+                                    bgcolor: '#eee', //设置层背景色
+                                    content: "<div style=\"padding: 20px;\" id='detail'>" + data.content + "</div>",
+                                    // shift: 'top' //从上动画弹出
+                                });
+                                ImagePreview.init({id:$("#detail p img")});
+                            } else {
+                                layer.open({title: '提示',content: data.error_msg});
+                            }
+                        },
+                    });
+                }
+            }
+        })
+    $("#demo02").click(function () {
         var note_key = $("#currentNoteKey").html()
         if (note_key !== "") {
-            var selected_node = _jm.get_selected_node();
-            if (!!selected_node) {
-                url = "/note/" + selected_node.id
-                $.ajax({
-                    url: url,
-                    type: "GET",
-                    data: {},
-                    success: function(data) {
-                        if (data.status === 200) {
-                            layer.open({
-                                type: 1,   //0-4的选择,（1代表page层）
-                                area: ['98%', '98%'],
-                                // shade: [0],  //不显示遮罩
-                                // border: [0], //不显示边框
-                                resize: false,
-                                shadeClose: true,
-                                title: [data.title],
-                                bgcolor: '#eee', //设置层背景色
-                                content: "<div style=\"padding: 20px;\" id='detail'>" + data.content + "</div>",
-                                // shift: 'top' //从上动画弹出
-                            });
-                            ImagePreview.init({id:$("#detail p img")});
-                        } else {
-                            layer.open({title: '提示',content: data.error_msg});
-                        }
-                    },
-                });
-            }
+            layer.open({
+                type: 1,   // 0-4的选择, (1代表page层)
+                area: ['600px', '400px'],
+                resize: false,
+                shadeClose: true,
+                title: 'Create a New Article',
+                content: `
+                    <div class="form-container">
+                        <form id="createArticleForm">
+                            <label for="title">Title</label>
+                            <input type="text" id="title" name="title" required>
+
+                            <label for="content">Content</label>
+                            <textarea id="content" name="content" rows="10" required></textarea>
+
+                            <button type="submit">Submit</button>
+                        </form>
+                    </div>
+                `
+            });
+
+            // Handle form submission
+            $(document).on('submit', '#createArticleForm', function(event) {
+                event.preventDefault();
+                var title = $('#title').val();
+                var content = $('#content').val();
+
+                // Here you can add the code to handle the form data, e.g., send it to the server
+                console.log('Article Title:', title);
+                console.log('Article Content:', content);
+
+                // Close the layer
+                layer.closeAll();
+            });
+            ImagePreview.init({id:$("#detail p img")});
         }
     })
 </script>
