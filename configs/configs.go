@@ -18,11 +18,8 @@ func InitConfig() {
 }
 
 type Config struct {
-	Server              ServerConfig `yaml:"server"`
-	Docs                []string     `yaml:"docs"`
-	Notes               []NoteGroup  `yaml:"notes"`
-	DefaultDisplayLevel int64        `yaml:"default_display_level"`
-	MenusYamlFile       string       `yaml:"menus_yaml_file"`
+	Server      ServerConfig `yaml:"server"`
+	MysqlConfig MysqlConfig  `yaml:"mysql"`
 }
 
 type ServerConfig struct {
@@ -33,14 +30,13 @@ type HTTPConfig struct {
 	Addr string `yaml:"addr"`
 }
 
-type NoteGroup struct {
-	GroupName string      `yaml:"note_group"`
-	Children  []NoteChild `yaml:"children"`
-}
-
-type NoteChild struct {
-	NoteName     string `yaml:"note_name"`
-	NoteKey      string `yaml:"note_key"`
-	Dir          string `yaml:"dir"`
-	DisplayLevel int64  `yaml:"display_level"`
+type MysqlConfig struct {
+	Path            string `yaml:"path"`              // 服务器地址:端口
+	Config          string `yaml:"config"`            // 高级配置
+	Dbname          string `yaml:"db-name"`           // 数据库名
+	Username        string `yaml:"username"`          // 数据库用户名
+	Password        string `yaml:"password"`          // 数据库密码
+	MaxIdleConns    int    `yaml:"max-idle-conns"`    // 空闲中的最大连接数
+	MaxOpenConns    int    `yaml:"max-open-conns"`    // 打开到数据库的最大连接数
+	ConnMaxLifetime int    `yaml:"conn-max-lifetime"` // 连接最大生存时间, 单位: 分钟
 }

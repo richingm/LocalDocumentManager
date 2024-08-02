@@ -175,7 +175,7 @@
         if (note_key !== "") {
             var selected_node = _jm.get_selected_node();
             if (!!selected_node) {
-                url = "/note/"+note_key+"/node/" + selected_node.id
+                url = "/note/" + selected_node.id
                 $.ajax({
                     url: url,
                     type: "GET",
@@ -208,7 +208,7 @@
 <script type="text/javascript">
     $(function(){
         // ajax获取菜单
-        url = "/menus"
+        url = "/categories"
         $.ajax({
             url: url,
             type: "GET",
@@ -258,8 +258,8 @@
                     }
                     $("#jsmind_container").html("")
                     $("#note-title").html($(this).attr("title"))
-                    $("#currentNoteKey").html($(this).attr("note-key"))
-                    load_jsmind($(this).attr("note-key"));
+                    $("#currentNoteKey").html($(this).attr("note-id"))
+                    load_jsmind($(this).attr("note-id"));
                 });
                 //lsm-mini
                 $('.lsm-mini-btn svg').on('click',function(){

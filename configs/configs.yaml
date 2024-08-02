@@ -1,35 +1,12 @@
 server:
   http:
     addr: 0.0.0.0:8000
-docs:
-  - "data"
-menus_yaml_file: "menus.yaml"
-notes:
-  - note_group: 硬实力
-    children:
-      - note_name: "算法"
-        note_key: "algorithm"
-        dir: "/Users/ruichengm/knowledge_repository/algorithm"
-  - note_group: "Go"
-    children:
-      - note_name: "go语言笔记"
-        note_key: "go_base"
-        dir: "/Users/ruichengm/knowledge_repository/go_study"
-  - note_group: "架构相关"
-    children:
-      - note_name: "设计模式"
-        note_key: "design_mode"
-        dir: "/Users/ruichengm/go_study_new/jsmind"
-  - note_group: "五笔"
-    children:
-      - note_name: "五笔教程"
-        note_key: "five_pen"
-        dir: "/Users/ruichengm/knowledge_repository/fivePenLearning"
-        display_level: 999
-  - note_group: "前端"
-    children:
-      - note_name: "Dart"
-        note_key: "dart"
-        dir: "/Users/ruichengm/knowledge_repository/dart"
-        display_level: 999
-default_display_level: 999
+mysql:
+  path: 127.0.0.1:3306
+  config: charset=utf8mb4&parseTime=True&loc=Local
+  db-name: knowledges
+  username: root
+  password: 123456
+  max-idle-conns: 5
+  max-open-conns: 30
+  conn-max-lifetime: 420

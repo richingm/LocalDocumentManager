@@ -1,0 +1,48 @@
+- menu_name: "核心"
+  children:
+    - menu_name: "算法"
+      menu_key: "algorithm"
+      dir_name: "algorithm"
+    - menu_name: "设计模式"
+      menu_key: "design_mode"
+      dir_name: "design_mode"
+      display_level: 999
+- menu_name: "架构"
+  children:
+    - menu_name: "数据库"
+      children:
+        - menu_name: "mysql"
+          menu_key: "mysql"
+          dir_name: "mysql"
+    - menu_name: "搜索"
+      children:
+        - menu_name: "Elastic Search"
+          menu_key: "elasticSearch"
+          dir_name: "elasticSearch"
+- menu_name: "GOLANG"
+  children:
+    - menu_name: "语言基础"
+      menu_key: "golang"
+      dir_name: "go_study"
+      display_level: 999
+    - menu_name: "ice"
+      menu_key: "ice"
+      dir_name: "golang"
+    - menu_name: "第三方插件"
+      children:
+        - menu_name: "jwt"
+          menu_key: "jwt"
+          dir_name: "jwt"
+- menu_name: "前端"
+  children:
+    - menu_name: "Dart"
+      menu_key: "dart"
+      dir_name: "dart"
+- menu_name: "其它"
+  children:
+    - menu_name: "五笔输入法"
+      menu_key: "fivePenLearning"
+      dir_name: "fivePenLearning"
+    - menu_name: "源码分析项目"
+      menu_key: "code-analyse"
+      dir_name: "code-analyse"
