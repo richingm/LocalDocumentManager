@@ -16,7 +16,7 @@ func NewArticleContentRepo(db *gorm.DB) *ArticleContentRepo {
 	}
 }
 
-func (r *ArticleContentRepo) Create(ctx context.Context, po *entity.ArticlePo) error {
+func (r *ArticleContentRepo) Create(ctx context.Context, po *entity.ArticleContentPo) error {
 	return r.db.Model(&entity.ArticleContentPo{}).Create(po).Error
 }
 

@@ -16,8 +16,12 @@ func NewArticleRepo(db *gorm.DB) *ArticleRepo {
 	}
 }
 
-func (r *ArticleRepo) Create(ctx context.Context, po *entity.ArticlePo) error {
-	return r.db.Model(&entity.ArticlePo{}).Create(po).Error
+func (r *ArticleRepo) Create(ctx context.Context, po *entity.ArticlePo) (*entity.ArticlePo, error) {
+	err := r.db.Model(&entity.ArticlePo{}).Create(po).Error
+	if err != nil {
+		return nil, err
+	}
+	return po, nil
 }
 
 func (r *ArticleRepo) List(ctx context.Context, search entity.ArticleParam) ([]*entity.ArticlePo, error) {

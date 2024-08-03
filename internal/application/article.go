@@ -28,6 +28,15 @@ type ArticleDto struct {
 	Content string `json:"content"`
 }
 
+func (s *ArticleService) Create(ctx context.Context, cid int, pid int, title string, content string) error {
+	articleBiz := domain.NewArticleBiz(ctx, repo.NewArticleRepo(mysql.GormDb), repo.NewArticleContentRepo(mysql.GormDb))
+	_, err := articleBiz.Create(ctx, cid, pid, title, content)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (s *ArticleService) Nodes(ctx context.Context, categoryId int) (NodeDto, error) {
 	categoryBiz := domain.NewCategoryBiz(ctx, repo.NewCategoryRepo(mysql.GormDb))
 	categoryDo, err := categoryBiz.Get(ctx, categoryId)

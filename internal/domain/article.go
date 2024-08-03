@@ -4,12 +4,11 @@ import (
 	"golang.org/x/net/context"
 	"richingm/LocalDocumentManager/internal/entity"
 	"richingm/LocalDocumentManager/internal/repo"
-	"time"
 )
 
 type ArticleDo struct {
 	ID         int
-	CreatedAt  time.Time
+	CreatedAt  []uint8
 	Pid        int
 	CategoryID int
 	Title      string
@@ -18,7 +17,7 @@ type ArticleDo struct {
 
 type ArticleWithContentDo struct {
 	ID         int
-	CreatedAt  time.Time
+	CreatedAt  []uint8
 	Pid        int
 	CategoryID int
 	Title      string
@@ -45,6 +44,37 @@ func (b *ArticleBiz) List(ctx context.Context, categoryId int) ([]*ArticleDo, er
 		return nil, err
 	}
 	return GroupArticleDosPtrByPid(convertArticlePosPtrToArticleDosPtr(list)), nil
+}
+
+func (b *ArticleBiz) Create(ctx context.Context, categoryId, pid int, title string, content string) (*ArticleWithContentDo, error) {
+	articlePo, err := b.articleRepo.Create(ctx, &entity.ArticlePo{
+		Pid:        pid,
+		CategoryID: categoryId,
+		Title:      title,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	err = b.articleContentRepo.Create(ctx, &entity.ArticleContentPo{
+		ArticleID: articlePo.ID,
+		Content:   content,
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	do := &ArticleWithContentDo{
+		ID:         articlePo.ID,
+		CreatedAt:  articlePo.CreatedAt,
+		Pid:        articlePo.Pid,
+		CategoryID: articlePo.CategoryID,
+		Title:      articlePo.Title,
+		Content:    content,
+	}
+
+	return do, nil
 }
 
 func (b *ArticleBiz) Get(ctx context.Context, id int) (*ArticleWithContentDo, error) {

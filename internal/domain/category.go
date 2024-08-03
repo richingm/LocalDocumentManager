@@ -3,7 +3,6 @@ package domain
 import (
 	"golang.org/x/net/context"
 	"richingm/LocalDocumentManager/internal/repo"
-	"time"
 )
 
 type CategoryBiz struct {
@@ -11,10 +10,10 @@ type CategoryBiz struct {
 }
 
 type CategoryDo struct {
-	ID        int       `gorm:"primarykey" uri:"id"`
-	CreatedAt time.Time `gorm:"column:created_at"`
-	Pid       int       `gorm:"column:pid"`
-	Name      string    `gorm:"column:name"`
+	ID        int     `gorm:"primarykey" uri:"id"`
+	CreatedAt []uint8 `gorm:"column:created_at"`
+	Pid       int     `gorm:"column:pid"`
+	Name      string  `gorm:"column:name"`
 }
 
 func NewCategoryBiz(ctx context.Context, categoryRepo *repo.CategoryRepo) *CategoryBiz {
