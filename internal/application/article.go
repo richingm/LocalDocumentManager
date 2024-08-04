@@ -6,6 +6,7 @@ import (
 	"richingm/LocalDocumentManager/internal/domain"
 	"richingm/LocalDocumentManager/internal/infrastructure/mysql"
 	"richingm/LocalDocumentManager/internal/repo"
+	"strings"
 )
 
 type ArticleService struct {
@@ -116,4 +117,46 @@ func (s *ArticleService) Get(ctx context.Context, id int) (*ArticleDto, error) {
 		Title:   do.Title,
 		Content: do.Content,
 	}, nil
+}
+
+func (s *ArticleService) Trees(ctx context.Context, id int) (string, error) {
+	articleBiz := domain.NewArticleBiz(ctx, repo.NewArticleRepo(mysql.GormDb), repo.NewArticleContentRepo(mysql.GormDb))
+	articleDo, err := articleBiz.Get(ctx, id)
+	if err != nil {
+		return "", err
+	}
+	articleDos, err := articleBiz.List(ctx, articleDo.CategoryID)
+	res := make([]string, 0)
+	res = append(res, "<select name=\"m_pid\">")
+	buildTreeArticleStr(articleDos, articleDo.Pid, &res)
+	res = append(res, "</select>")
+	return strings.Join(res, ""), nil
+}
+
+func buildTreeArticleStr(articles []domain.ArticleDo, selectId int, res *[]string) {
+	selected := ""
+	if 0 == selectId {
+		selected = "selected"
+	}
+	option := fmt.Sprintf("<option value=\"%d\" %s >%s</option>", 0, selected, "请选择")
+	*res = append(*res, option)
+	for _, article := range articles {
+		buildTreeArticleLoopStr(article, res, selectId, "-")
+	}
+}
+
+func buildTreeArticleLoopStr(do domain.ArticleDo, res *[]string, selectId int, suffix string) {
+	selected := ""
+	if do.ID == selectId {
+		selected = "selected"
+	}
+	option := fmt.Sprintf("<option value=\"%d\" %s >%s</option>", do.ID, selected, suffix+do.Title)
+	*res = append(*res, option)
+	if len(do.Children) == 0 {
+		return
+	}
+	suffix = suffix + suffix
+	for _, child := range do.Children {
+		buildTreeArticleLoopStr(child, res, selectId, suffix)
+	}
 }

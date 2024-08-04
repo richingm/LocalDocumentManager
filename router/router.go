@@ -250,4 +250,33 @@ func InitRouter(r *gin.Engine) {
 		}
 		c.JSON(http.StatusOK, res)
 	})
+
+	r.GET("/article/tree/:id", func(c *gin.Context) {
+		type response struct {
+			Status   int    `json:"status"`
+			Content  string `json:"content"`
+			ErrorMsg string `json:"error_msg"`
+		}
+
+		var res response
+		res.Status = http.StatusOK
+
+		idStr := c.Param("id")
+		id, err := strconv.Atoi(idStr)
+		if err != nil {
+			res.ErrorMsg = "参数错误"
+			c.JSON(http.StatusOK, res)
+			return
+		}
+
+		articleService := application.NewArticleService(c.Request.Context())
+		content, err := articleService.Trees(c.Request.Context(), id)
+		if err != nil {
+			res.ErrorMsg = err.Error()
+			c.JSON(http.StatusOK, res)
+			return
+		}
+		res.Content = content
+		c.JSON(http.StatusOK, res)
+	})
 }
