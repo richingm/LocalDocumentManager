@@ -16,10 +16,10 @@ func NewArticleService(ctx context.Context) *ArticleService {
 }
 
 type NodeDto struct {
-	ID       string    `json:"id"`
-	Topic    string    `json:"topic"`
-	Children []NodeDto `json:"children"`
-	Expanded bool      `json:"expanded"` // 子节点默认不打开
+	ID       string     `json:"id"`
+	Topic    string     `json:"topic"`
+	Children []*NodeDto `json:"children"`
+	Expanded bool       `json:"expanded"` // 子节点默认不打开
 }
 
 type ArticleDto struct {
@@ -54,47 +54,37 @@ func (s *ArticleService) Nodes(ctx context.Context, categoryId int) (NodeDto, er
 		return NodeDto{}, err
 	}
 
-	res.Children = convertArticleToNodeDto(articleDos)
+	res.Children = buildTreeArticle(articleDos)
 	return res, nil
 }
 
-func convertArticleToNodeDto(articles []*domain.ArticleDo) []NodeDto {
-	nodeMap := make(map[int]*NodeDto)
-
-	// Create nodes
+func buildTreeArticle(articles []domain.ArticleDo) []*NodeDto {
+	res := make([]*NodeDto, 0, len(articles))
 	for _, article := range articles {
-		node, exists := nodeMap[article.ID]
-		if !exists {
-			node = &NodeDto{
-				ID:       fmt.Sprintf("%d", article.ID),
-				Topic:    article.Title,
-				Children: make([]NodeDto, 0),
-				Expanded: false,
-			}
-			nodeMap[article.ID] = node
-		}
+		res = append(res, buildTreeArticleLoop(article))
+	}
+	return res
+}
 
-		if article.Pid != 0 {
-			parentNode, exists := nodeMap[article.Pid]
-			if !exists {
-				parentNode = &NodeDto{
-					ID:       fmt.Sprintf("%d", article.ID),
-					Children: make([]NodeDto, 0),
-					Expanded: false,
-				}
-				nodeMap[article.Pid] = parentNode
-			}
-			parentNode.Children = append(parentNode.Children, *node)
+func buildTreeArticleLoop(do domain.ArticleDo) *NodeDto {
+	if len(do.Children) == 0 {
+		return &NodeDto{
+			ID:       fmt.Sprintf("%d", do.ID),
+			Topic:    do.Title,
+			Children: nil,
+			Expanded: false,
 		}
 	}
-
-	// Extract nodes to slice
-	nodes := make([]NodeDto, 0, len(nodeMap))
-	for _, node := range nodeMap {
-		nodes = append(nodes, *node)
+	children := make([]*NodeDto, 0, len(do.Children))
+	for _, child := range do.Children {
+		children = append(children, buildTreeArticleLoop(child))
 	}
-
-	return nodes
+	return &NodeDto{
+		ID:       fmt.Sprintf("%d", do.ID),
+		Topic:    do.Title,
+		Children: children,
+		Expanded: false,
+	}
 }
 
 func (s *ArticleService) Get(ctx context.Context, id int) (*ArticleDto, error) {

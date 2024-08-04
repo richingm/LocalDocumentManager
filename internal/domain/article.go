@@ -36,14 +36,16 @@ func NewArticleBiz(ctx context.Context, articleRepo *repo.ArticleRepo, articleCo
 	}
 }
 
-func (b *ArticleBiz) List(ctx context.Context, categoryId int) ([]*ArticleDo, error) {
+func (b *ArticleBiz) List(ctx context.Context, categoryId int) ([]ArticleDo, error) {
 	list, err := b.articleRepo.List(ctx, entity.ArticleParam{
 		CategoryID: categoryId,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return GroupArticleDosPtrByPid(convertArticlePosPtrToArticleDosPtr(list)), nil
+	dos := convertArticlePosPtrToArticleDosPtr(list)
+	dos = buildTree(dos, 0)
+	return dos, nil
 }
 
 func (b *ArticleBiz) Create(ctx context.Context, categoryId, pid int, title string, content string) (*ArticleWithContentDo, error) {
@@ -100,10 +102,10 @@ func (b *ArticleBiz) Get(ctx context.Context, id int) (*ArticleWithContentDo, er
 	return do, nil
 }
 
-func convertArticlePosPtrToArticleDosPtr(articlePosPtrs []*entity.ArticlePo) []*ArticleDo {
-	var articleDosPtrs []*ArticleDo
+func convertArticlePosPtrToArticleDosPtr(articlePosPtrs []*entity.ArticlePo) []ArticleDo {
+	var articleDosPtrs []ArticleDo
 	for _, articlePoPtr := range articlePosPtrs {
-		articleDo := &ArticleDo{
+		articleDo := ArticleDo{
 			ID:         articlePoPtr.ID,
 			CreatedAt:  articlePoPtr.CreatedAt,
 			Pid:        articlePoPtr.Pid,
@@ -114,6 +116,18 @@ func convertArticlePosPtrToArticleDosPtr(articlePosPtrs []*entity.ArticlePo) []*
 		articleDosPtrs = append(articleDosPtrs, articleDo)
 	}
 	return articleDosPtrs
+}
+
+func buildTree(items []ArticleDo, pid int) []ArticleDo {
+	var result []ArticleDo
+	for _, item := range items {
+		if item.Pid == pid {
+			children := buildTree(items, item.ID)
+			item.Children = children
+			result = append(result, item)
+		}
+	}
+	return result
 }
 
 func GroupArticleDosPtrByPid(articleDosPtrs []*ArticleDo) []*ArticleDo {
