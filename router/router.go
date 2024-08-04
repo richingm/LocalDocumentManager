@@ -152,4 +152,75 @@ func InitRouter(r *gin.Engine) {
 		}
 		c.JSON(http.StatusOK, res)
 	})
+
+	r.GET("/article/:id", func(c *gin.Context) {
+		type response struct {
+			Status   int    `json:"status"`
+			Title    string `json:"title"`
+			Content  string `json:"content"`
+			ErrorMsg string `json:"error_msg"`
+		}
+
+		var res response
+		res.Status = http.StatusOK
+
+		idStr := c.Param("id")
+		id, err := strconv.Atoi(idStr)
+		if err != nil {
+			res.ErrorMsg = "参数错误"
+			c.JSON(http.StatusOK, res)
+			return
+		}
+
+		articleService := application.NewArticleService(c.Request.Context())
+		dto, err := articleService.Get(c.Request.Context(), id)
+		if err != nil {
+			res.ErrorMsg = err.Error()
+			c.JSON(http.StatusOK, res)
+			return
+		}
+		res.Title = dto.Title
+		res.Content = dto.Content
+		c.JSON(http.StatusOK, res)
+	})
+
+	r.PUT("/article", func(c *gin.Context) {
+		type response struct {
+			Status   int    `json:"status"`
+			ErrorMsg string `json:"error_msg"`
+		}
+
+		var res response
+		res.Status = http.StatusOK
+
+		type articleParams struct {
+			Id      string `json:"id" form:"id"`
+			Title   string `form:"title" json:"title"`
+			Content string `form:"content" json:"content"`
+		}
+
+		var param articleParams
+		err := c.ShouldBindJSON(&param)
+		if err != nil {
+			res.ErrorMsg = "参数错误"
+			c.JSON(http.StatusOK, res)
+			return
+		}
+
+		id, err := strconv.Atoi(param.Id)
+		if err != nil {
+			res.ErrorMsg = "参数错误"
+			c.JSON(http.StatusOK, res)
+			return
+		}
+
+		articleService := application.NewArticleService(c.Request.Context())
+		err = articleService.Update(c.Request.Context(), id, param.Title, param.Content)
+		if err != nil {
+			res.ErrorMsg = err.Error()
+			c.JSON(http.StatusOK, res)
+			return
+		}
+		c.JSON(http.StatusOK, res)
+	})
 }

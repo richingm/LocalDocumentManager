@@ -79,6 +79,23 @@ func (b *ArticleBiz) Create(ctx context.Context, categoryId, pid int, title stri
 	return do, nil
 }
 
+func (b *ArticleBiz) Update(ctx context.Context, id int, title string, content string) error {
+	fields := make(map[string]interface{})
+	fields["title"] = title
+	err := b.articleRepo.Update(ctx, id, fields)
+	if err != nil {
+		return err
+	}
+
+	contentFields := make(map[string]interface{})
+	contentFields["content"] = content
+	err = b.articleContentRepo.Update(ctx, id, contentFields)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (b *ArticleBiz) Get(ctx context.Context, id int) (*ArticleWithContentDo, error) {
 	articlePo, err := b.articleRepo.GetByID(ctx, id)
 	if err != nil {

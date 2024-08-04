@@ -37,6 +37,15 @@ func (s *ArticleService) Create(ctx context.Context, cid int, pid int, title str
 	return nil
 }
 
+func (s *ArticleService) Update(ctx context.Context, id int, title string, content string) error {
+	articleBiz := domain.NewArticleBiz(ctx, repo.NewArticleRepo(mysql.GormDb), repo.NewArticleContentRepo(mysql.GormDb))
+	err := articleBiz.Update(ctx, id, title, content)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (s *ArticleService) Nodes(ctx context.Context, categoryId int) (NodeDto, error) {
 	categoryBiz := domain.NewCategoryBiz(ctx, repo.NewCategoryRepo(mysql.GormDb))
 	categoryDo, err := categoryBiz.Get(ctx, categoryId)

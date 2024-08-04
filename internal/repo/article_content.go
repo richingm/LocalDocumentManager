@@ -20,6 +20,14 @@ func (r *ArticleContentRepo) Create(ctx context.Context, po *entity.ArticleConte
 	return r.db.Model(&entity.ArticleContentPo{}).Create(po).Error
 }
 
+func (r *ArticleContentRepo) Update(ctx context.Context, articleId int, fields map[string]interface{}) error {
+	err := r.db.Model(&entity.ArticleContentPo{}).Where("article_id = ?", articleId).Updates(fields).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (r *ArticleContentRepo) GetByID(ctx context.Context, id int) (*entity.ArticleContentPo, error) {
 	var po entity.ArticleContentPo
 	result := r.db.Model(&entity.ArticleContentPo{}).Where("article_id = ?", id).First(&po, id)

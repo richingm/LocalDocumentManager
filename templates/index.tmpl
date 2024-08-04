@@ -31,9 +31,13 @@
             z-index: 10; /* 设置较高的堆叠顺序值 */
             position: fixed;
             width: 90%;
-            justify-content: space-between;
             align-items: center;
             height: 40px;
+        }
+
+        .top .btn {
+                    display: flex;
+           float: right; /* Align the container to the right */
         }
 
         .top h1 {
@@ -116,8 +120,13 @@
         <div class="top">
             <h1 id="note-title"></h1>
             <div id="currentNoteKey" style="display: none;"></div>
-            <button class="layui-btn" id="demo01">查看内容</button>
-            <button class="layui-btn" id="addArticle">添加文章</button>
+            <div class="btn">
+                        <button class="layui-btn" id="addArticle">添加</button>
+                        <button class="layui-btn" id="editArticle">修改</button>
+                        <button class="layui-btn" id="moveArticle">移动</button>
+                        <button class="layui-btn" id="delArticle">删除</button>
+                        <button class="layui-btn" id="demo01">查看</button>
+            </div>
         </div>
         <div id="jsmind_container"></div>
     </div>
@@ -235,6 +244,56 @@
       }
     });
   });
+  $('#editArticle').click(function() {
+      var selected_node = _jm.get_selected_node();
+      if (selected_node !== null) {
+            var url = "/article/" + selected_node.id
+            $.ajax({
+              url: url,
+              type: "GET",
+              data: {},
+              success: function(data) {
+                  if (data.error_msg === "") {
+                      $('input[name="title"]').val(data.title);
+                      window.editor.setData(data.content)
+                      layer.open({
+                      type: 1,
+                      title: '修改文章',
+                      content: $('#articleForm'),
+                      area: ['100%', '100%'],
+                      btn: ['修改'],
+                      yes: function(index, layero) {
+                            var url = "/article";
+                            var data = JSON.stringify({ id: selected_node.id, title: $('input[name="title"]').val(), content: window.editor.getData() });
+                            $.ajax({
+                                url: url,
+                                type: "PUT",
+                                data: data,
+                                dataType: "json",
+                                contentType: "application/json",
+                                success: function(response) {
+                                    alert("修改成功")
+                                    $('#articleForm').hide();
+                                    layer.close(index); // 关闭弹出层
+                                    $("#jsmind_container").html("")
+                                    var note_key = $("#currentNoteKey").html()
+                                    load_jsmind(note_key);
+                                },
+                            });
+                      },
+                      cancel: function() {
+                        $('#articleForm').hide();
+                      },
+                      success: function(layero, index) {
+                      }
+                    });
+                  }  else {
+                      layer.open({title: '提示',content: data.error_msg});
+                  }
+              },
+          });
+      }
+    });
   </script>
 <script type="text/javascript" src="/static/js/jsmind.js"></script>
 <script type="text/javascript" src="/static/js/layer/layer.js"></script>
