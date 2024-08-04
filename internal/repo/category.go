@@ -36,6 +36,6 @@ func (r *CategoryRepo) GetByID(ctx context.Context, id int) (*entity.CategoryPo,
 
 func (r *CategoryRepo) List(ctx context.Context) ([]*entity.CategoryPo, error) {
 	var categories []*entity.CategoryPo
-	result := r.db.Model(&entity.CategoryPo{}).Find(&categories)
+	result := r.db.Model(&entity.CategoryPo{}).Find(&categories).Order("sort asc")
 	return categories, result.Error
 }
