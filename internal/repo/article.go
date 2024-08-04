@@ -32,6 +32,14 @@ func (r *ArticleRepo) Update(ctx context.Context, id int, fields map[string]inte
 	return nil
 }
 
+func (r *ArticleRepo) Delete(ctx context.Context, id int) error {
+	err := r.db.Where("id = ?", id).Delete(&entity.ArticlePo{}).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (r *ArticleRepo) List(ctx context.Context, search entity.ArticleParam) ([]*entity.ArticlePo, error) {
 	var res []*entity.ArticlePo
 	scopes := getScopes(search)

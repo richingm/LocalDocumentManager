@@ -96,6 +96,19 @@ func (b *ArticleBiz) Update(ctx context.Context, id int, title string, content s
 	return nil
 }
 
+func (b *ArticleBiz) Delete(ctx context.Context, id int) error {
+	err := b.articleContentRepo.Delete(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	err = b.articleRepo.Delete(ctx, id)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (b *ArticleBiz) Get(ctx context.Context, id int) (*ArticleWithContentDo, error) {
 	articlePo, err := b.articleRepo.GetByID(ctx, id)
 	if err != nil {

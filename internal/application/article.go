@@ -46,6 +46,15 @@ func (s *ArticleService) Update(ctx context.Context, id int, title string, conte
 	return nil
 }
 
+func (s *ArticleService) Delete(ctx context.Context, id int) error {
+	articleBiz := domain.NewArticleBiz(ctx, repo.NewArticleRepo(mysql.GormDb), repo.NewArticleContentRepo(mysql.GormDb))
+	err := articleBiz.Delete(ctx, id)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (s *ArticleService) Nodes(ctx context.Context, categoryId int) (NodeDto, error) {
 	categoryBiz := domain.NewCategoryBiz(ctx, repo.NewCategoryRepo(mysql.GormDb))
 	categoryDo, err := categoryBiz.Get(ctx, categoryId)

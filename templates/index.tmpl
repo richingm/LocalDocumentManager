@@ -294,6 +294,28 @@
           });
       }
     });
+    $('#delArticle').click(function() {
+      var selected_node = _jm.get_selected_node();
+      if (selected_node !== null) {
+            layer.confirm('确定要删除:' + selected_node.topic + '？', {icon: 3, title:'提示'}, function(index){
+                  var url = "/article/" + selected_node.id;
+                  $.ajax({
+                      url: url,
+                      type: "DELETE",
+                      data: {},
+                      success: function(response) {
+                          alert("删除成功")
+                          $('#articleForm').hide();
+                          layer.close(index); // 关闭弹出层
+                          $("#jsmind_container").html("")
+                          var note_key = $("#currentNoteKey").html()
+                          load_jsmind(note_key);
+                      },
+                  });
+              layer.close(index);
+            });
+      }
+    });
   </script>
 <script type="text/javascript" src="/static/js/jsmind.js"></script>
 <script type="text/javascript" src="/static/js/layer/layer.js"></script>

@@ -28,6 +28,14 @@ func (r *ArticleContentRepo) Update(ctx context.Context, articleId int, fields m
 	return nil
 }
 
+func (r *ArticleContentRepo) Delete(ctx context.Context, articleId int) error {
+	err := r.db.Where("article_id = ?", articleId).Delete(&entity.ArticleContentPo{}).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (r *ArticleContentRepo) GetByID(ctx context.Context, id int) (*entity.ArticleContentPo, error) {
 	var po entity.ArticleContentPo
 	result := r.db.Model(&entity.ArticleContentPo{}).Where("article_id = ?", id).First(&po, id)
