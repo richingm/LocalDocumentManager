@@ -44,7 +44,7 @@ func (r *ArticleRepo) List(ctx context.Context, search entity.ArticleParam) ([]*
 	var res []*entity.ArticlePo
 	scopes := getScopes(search)
 	tx := r.db.Scopes(scopes...)
-	err := tx.Find(&res).Error
+	err := tx.Order("sort asc").Find(&res).Error
 	if err != nil {
 		return nil, err
 	}

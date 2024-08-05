@@ -153,15 +153,15 @@
     }
   </script>
   <script type="module">
-    import { ClassicEditor, Essentials, Paragraph, Bold, Italic, Font, Image, ImageToolbar, ImageUpload, ImageCaption, ImageStyle, Base64UploadAdapter, Heading, Table, TableToolbar, Strikethrough, List } from 'ckeditor5';
+    import { ClassicEditor, Essentials, Paragraph, Bold, Italic, Font, Image, ImageToolbar, ImageUpload, ImageCaption, ImageStyle, Base64UploadAdapter, Heading, Table, TableToolbar, Strikethrough, List, BlockQuote, CodeBlock } from 'ckeditor5';
 
     ClassicEditor
       .create(document.querySelector('#editor'), {
         plugins: [
-          Essentials, Paragraph, Bold, Italic, Font, Image, ImageToolbar, ImageUpload, ImageCaption, ImageStyle, Base64UploadAdapter, Heading, Table, TableToolbar, Strikethrough, List
+          Essentials, Paragraph, Bold, Italic, Font, Image, ImageToolbar, ImageUpload, ImageCaption, ImageStyle, Base64UploadAdapter, Heading, Table, TableToolbar, Strikethrough, List, BlockQuote,CodeBlock
         ],
         toolbar: [
-          'undo', 'redo', '|', 'heading', '|', 'bold', 'italic', 'strikethrough', '|', 'fontSize', 'fontFamily', 'fontColor', 'fontBackgroundColor', '|', 'bulletedList', 'numberedList', '|', 'insertTable', '|', 'imageUpload'
+          'undo', 'redo', '|', 'heading', '|', 'bold', 'italic', 'strikethrough', '|', 'fontSize', 'fontFamily', 'fontColor', 'fontBackgroundColor', '|', 'bulletedList', 'numberedList', '|', 'insertTable', '|', 'imageUpload', 'blockQuote', 'codeBlock'
         ],
         heading: {
           options: [
