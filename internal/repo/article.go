@@ -1,6 +1,7 @@
 package repo
 
 import (
+	"errors"
 	"golang.org/x/net/context"
 	"gorm.io/gorm"
 	"richingm/LocalDocumentManager/internal/entity"
@@ -33,12 +34,21 @@ func (r *ArticleRepo) Update(ctx context.Context, id int, fields map[string]inte
 }
 
 func (r *ArticleRepo) GetSort(ctx context.Context, cid int, pid int) (int64, error) {
-	var count int64
-	err := r.db.Model(&entity.ArticlePo{}).Select("max(sort) as count").Where("category_id = ? and pid = ?", cid, pid).Find(&count).Error
+	type countStruct struct {
+		Count *int64 `gorm:"column:count"`
+	}
+	var count countStruct
+	err := r.db.Model(&entity.ArticlePo{}).Select("max(sort) as count").Where("category_id = ? and pid = ?", cid, pid).First(&count).Error
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return 0, nil
+		}
 		return 0, err
 	}
-	return count, nil
+	if count.Count == nil {
+		return 0, err
+	}
+	return *count.Count, nil
 }
 
 func (r *ArticleRepo) Delete(ctx context.Context, id int) error {
