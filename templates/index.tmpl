@@ -124,7 +124,7 @@
                         <button class="layui-btn" id="addArticle">添加</button>
                         <button class="layui-btn" id="editArticle">修改</button>
                         <button class="layui-btn" id="delArticle">删除</button>
-                        <button class="layui-btn" id="demo01">查看</button>
+                        <button class="layui-btn" id="viewArticle">查看</button>
             </div>
         </div>
         <div id="jsmind_container"></div>
@@ -137,7 +137,7 @@
           <input type="text" name="title" required lay-verify="required" placeholder="请输入标题" autocomplete="off" class="layui-input">
         </div>
       </div>
-      <div class="layui-row">
+      <div class="layui-row" id="idSort">
           <div class="layui-col-md12">
                排序:<input type="text" name="order_sort" placeholder="排序" autocomplete="off" class="layui-input">
           </div>
@@ -209,7 +209,13 @@
 
   <script>
   $('#addArticle').click(function() {
+    if (_jm == null) {
+       layer.open({title: '提示',content: "没有选择知识库"});
+       return
+    }
     $('input[name="title"]').val('');
+    $('input[name=""]').val('0')
+    $('#idSort').hide()
     window.editor.setData('')
     layer.open({
       type: 1,
@@ -233,10 +239,14 @@
                 dataType: "json",
                 contentType: "application/json",
                 success: function(response) {
-                    $('#articleForm').hide();
-                    layer.close(index); // 关闭弹出层
-                    $("#jsmind_container").html("")
-                    load_jsmind(note_key);
+                    if (data.status === 200) {
+                         $('#articleForm').hide();
+                         layer.close(index); // 关闭弹出层
+                         $("#jsmind_container").html("")
+                         load_jsmind(note_key);
+                    } else {
+                        layer.open({title: '提示',content: data.error_msg});
+                    }
                 },
             });
       },
@@ -248,9 +258,14 @@
     });
   });
   $('#editArticle').click(function() {
+      if (_jm == null) {
+         layer.open({title: '提示',content: "没有选择知识库"});
+         return
+      }
       var selected_node = _jm.get_selected_node();
       if (selected_node !== null) {
             var url = "/article/" + selected_node.id
+            $('#idSort').show()
             $.ajax({
               url: url,
               type: "GET",
@@ -276,11 +291,15 @@
                                 dataType: "json",
                                 contentType: "application/json",
                                 success: function(response) {
-                                    $('#articleForm').hide();
-                                    layer.close(index); // 关闭弹出层
-                                    $("#jsmind_container").html("")
-                                    var note_key = $("#currentNoteKey").html()
-                                    load_jsmind(note_key);
+                                    if (data.status === 200) {
+                                         $('#articleForm').hide();
+                                         layer.close(index); // 关闭弹出层
+                                         $("#jsmind_container").html("")
+                                         var note_key = $("#currentNoteKey").html()
+                                         load_jsmind(note_key);
+                                    } else {
+                                        layer.open({title: '提示',content: data.error_msg});
+                                    }
                                 },
                             });
                       },
@@ -295,9 +314,15 @@
                   }
               },
           });
+      } else {
+          layer.open({title: '提示',content: '没有选择文章'});
       }
     });
     $('#delArticle').click(function() {
+      if (_jm == null) {
+         layer.open({title: '提示',content: "请选择文章"});
+         return
+      }
       var selected_node = _jm.get_selected_node();
       if (selected_node !== null) {
             layer.confirm('确定要删除:' + selected_node.topic + '？', {icon: 3, title:'提示'}, function(index){
@@ -307,18 +332,62 @@
                       type: "DELETE",
                       data: {},
                       success: function(response) {
-                          alert("删除成功")
-                          $('#articleForm').hide();
-                          layer.close(index); // 关闭弹出层
-                          $("#jsmind_container").html("")
-                          var note_key = $("#currentNoteKey").html()
-                          load_jsmind(note_key);
+                          if (data.status === 200) {
+                             $('#articleForm').hide();
+                             layer.close(index); // 关闭弹出层
+                             $("#jsmind_container").html("")
+                             var note_key = $("#currentNoteKey").html()
+                             load_jsmind(note_key);
+                          } else {
+                              layer.open({title: '提示',content: data.error_msg});
+                          }
                       },
                   });
               layer.close(index);
             });
+      } else {
+        layer.open({title: '提示',content: '没有选择文章!'});
       }
     });
+    $("#viewArticle").click(function () {
+        var note_key = $("#currentNoteKey").html()
+        if (note_key !== "") {
+            var selected_node = _jm.get_selected_node();
+            if (!!selected_node) {
+                url = "/note/" + selected_node.id
+                $.ajax({
+                    url: url,
+                    type: "GET",
+                    data: {},
+                    success: function(data) {
+                        if (data.status === 200) {
+                            layer.open({
+                                type: 1,   //0-4的选择,（1代表page层）
+                                area: ['98%', '98%'],
+                                // shade: [0],  //不显示遮罩
+                                // border: [0], //不显示边框
+                                resize: false,
+                                shadeClose: true,
+                                title: [data.title],
+                                bgcolor: '#eee', //设置层背景色
+                                content: "<div style=\"padding: 20px;\" id='detail'>" + data.content + "</div>",
+                                // shift: 'top' //从上动画弹出
+                            });
+                            ImagePreview.init({id:$("#detail p img")});
+                        } else {
+                            layer.open({title: '提示',content: data.error_msg});
+                        }
+                    },
+                });
+            } else {
+                layer.open({title: '提示',content: "请选择文章!"});
+                return
+            }
+        } else {
+             layer.open({title: '提示',content: "请选择文章"});
+             return
+        }
+    })
   </script>
 <script type="text/javascript" src="/static/js/jsmind.js"></script>
 <script type="text/javascript" src="/static/js/layer/layer.js"></script>
@@ -372,42 +441,6 @@
             },
         });
     }
-</script>
-
-<script>
-    $("#demo01").click(function () {
-            var note_key = $("#currentNoteKey").html()
-            if (note_key !== "") {
-                var selected_node = _jm.get_selected_node();
-                if (!!selected_node) {
-                    url = "/note/" + selected_node.id
-                    $.ajax({
-                        url: url,
-                        type: "GET",
-                        data: {},
-                        success: function(data) {
-                            if (data.status === 200) {
-                                layer.open({
-                                    type: 1,   //0-4的选择,（1代表page层）
-                                    area: ['98%', '98%'],
-                                    // shade: [0],  //不显示遮罩
-                                    // border: [0], //不显示边框
-                                    resize: false,
-                                    shadeClose: true,
-                                    title: [data.title],
-                                    bgcolor: '#eee', //设置层背景色
-                                    content: "<div style=\"padding: 20px;\" id='detail'>" + data.content + "</div>",
-                                    // shift: 'top' //从上动画弹出
-                                });
-                                ImagePreview.init({id:$("#detail p img")});
-                            } else {
-                                layer.open({title: '提示',content: data.error_msg});
-                            }
-                        },
-                    });
-                }
-            }
-        })
 </script>
 
 <script type="text/javascript">
