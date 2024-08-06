@@ -239,13 +239,13 @@
                 dataType: "json",
                 contentType: "application/json",
                 success: function(response) {
-                    if (data.status === 200) {
+                    if (response.status == 200) {
                          $('#articleForm').hide();
                          layer.close(index); // 关闭弹出层
                          $("#jsmind_container").html("")
                          load_jsmind(note_key);
                     } else {
-                        layer.open({title: '提示',content: data.error_msg});
+                        layer.open({title: '提示',content: response.error_msg});
                     }
                 },
             });
@@ -291,14 +291,14 @@
                                 dataType: "json",
                                 contentType: "application/json",
                                 success: function(response) {
-                                    if (data.status === 200) {
+                                    if (response.status == 200) {
                                          $('#articleForm').hide();
                                          layer.close(index); // 关闭弹出层
                                          $("#jsmind_container").html("")
                                          var note_key = $("#currentNoteKey").html()
                                          load_jsmind(note_key);
                                     } else {
-                                        layer.open({title: '提示',content: data.error_msg});
+                                        layer.open({title: '提示',content: response.error_msg});
                                     }
                                 },
                             });
@@ -332,14 +332,14 @@
                       type: "DELETE",
                       data: {},
                       success: function(response) {
-                          if (data.status === 200) {
+                          if (response.status == 200) {
                              $('#articleForm').hide();
                              layer.close(index); // 关闭弹出层
                              $("#jsmind_container").html("")
                              var note_key = $("#currentNoteKey").html()
                              load_jsmind(note_key);
                           } else {
-                              layer.open({title: '提示',content: data.error_msg});
+                              layer.open({title: '提示',content: response.error_msg});
                           }
                       },
                   });
@@ -359,8 +359,8 @@
                     url: url,
                     type: "GET",
                     data: {},
-                    success: function(data) {
-                        if (data.status === 200) {
+                    success: function(response) {
+                        if (response.status == 200) {
                             layer.open({
                                 type: 1,   //0-4的选择,（1代表page层）
                                 area: ['98%', '98%'],
@@ -368,14 +368,14 @@
                                 // border: [0], //不显示边框
                                 resize: false,
                                 shadeClose: true,
-                                title: [data.title],
+                                title: [response.title],
                                 bgcolor: '#eee', //设置层背景色
-                                content: "<div style=\"padding: 20px;\" id='detail'>" + data.content + "</div>",
+                                content: "<div style=\"padding: 20px;\" id='detail'>" + response.content + "</div>",
                                 // shift: 'top' //从上动画弹出
                             });
                             ImagePreview.init({id:$("#detail p img")});
                         } else {
-                            layer.open({title: '提示',content: data.error_msg});
+                            layer.open({title: '提示',content: response.error_msg});
                         }
                     },
                 });

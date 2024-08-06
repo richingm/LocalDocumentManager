@@ -50,10 +50,16 @@ func (b *ArticleBiz) List(ctx context.Context, categoryId int) ([]ArticleDo, err
 }
 
 func (b *ArticleBiz) Create(ctx context.Context, categoryId, pid int, title string, content string) (*ArticleWithContentDo, error) {
+	sortNum, err := b.articleRepo.GetSort(ctx, categoryId, pid)
+	if err != nil {
+		return nil, err
+	}
+
 	articlePo, err := b.articleRepo.Create(ctx, &entity.ArticlePo{
 		Pid:        pid,
 		CategoryID: categoryId,
 		Title:      title,
+		Sort:       int(sortNum + 1),
 	})
 	if err != nil {
 		return nil, err
@@ -75,6 +81,7 @@ func (b *ArticleBiz) Create(ctx context.Context, categoryId, pid int, title stri
 		CategoryID: articlePo.CategoryID,
 		Title:      articlePo.Title,
 		Content:    content,
+		OrderSort:  articlePo.Sort,
 	}
 
 	return do, nil

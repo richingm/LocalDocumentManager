@@ -32,6 +32,15 @@ func (r *ArticleRepo) Update(ctx context.Context, id int, fields map[string]inte
 	return nil
 }
 
+func (r *ArticleRepo) GetSort(ctx context.Context, cid int, pid int) (int64, error) {
+	var count int64
+	err := r.db.Model(&entity.ArticlePo{}).Select("max(sort) as count").Where("category_id = ? and pid = ?", cid, pid).Find(&count).Error
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
+}
+
 func (r *ArticleRepo) Delete(ctx context.Context, id int) error {
 	err := r.db.Where("id = ?", id).Delete(&entity.ArticlePo{}).Error
 	if err != nil {
