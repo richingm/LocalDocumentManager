@@ -24,9 +24,10 @@ type NodeDto struct {
 }
 
 type ArticleDto struct {
-	ID      int    `json:"id"`
-	Title   string `json:"title"`
-	Content string `json:"content"`
+	ID        int    `json:"id"`
+	Title     string `json:"title"`
+	Content   string `json:"content"`
+	OrderSort int    `json:"order_sort"`
 }
 
 func (s *ArticleService) Create(ctx context.Context, cid int, pid int, title string, content string) error {
@@ -38,9 +39,9 @@ func (s *ArticleService) Create(ctx context.Context, cid int, pid int, title str
 	return nil
 }
 
-func (s *ArticleService) Update(ctx context.Context, id int, title string, content string) error {
+func (s *ArticleService) Update(ctx context.Context, id int, title string, content string, orderSort int) error {
 	articleBiz := domain.NewArticleBiz(ctx, repo.NewArticleRepo(mysql.GormDb), repo.NewArticleContentRepo(mysql.GormDb))
-	err := articleBiz.Update(ctx, id, title, content)
+	err := articleBiz.Update(ctx, id, title, content, orderSort)
 	if err != nil {
 		return err
 	}
@@ -113,9 +114,10 @@ func (s *ArticleService) Get(ctx context.Context, id int) (*ArticleDto, error) {
 		return nil, err
 	}
 	return &ArticleDto{
-		ID:      do.ID,
-		Title:   do.Title,
-		Content: do.Content,
+		ID:        do.ID,
+		Title:     do.Title,
+		Content:   do.Content,
+		OrderSort: do.OrderSort,
 	}, nil
 }
 

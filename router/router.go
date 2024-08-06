@@ -155,10 +155,11 @@ func InitRouter(r *gin.Engine) {
 
 	r.GET("/article/:id", func(c *gin.Context) {
 		type response struct {
-			Status   int    `json:"status"`
-			Title    string `json:"title"`
-			Content  string `json:"content"`
-			ErrorMsg string `json:"error_msg"`
+			Status    int    `json:"status"`
+			Title     string `json:"title"`
+			Content   string `json:"content"`
+			OrderSort int    `json:"order_sort"`
+			ErrorMsg  string `json:"error_msg"`
 		}
 
 		var res response
@@ -181,6 +182,7 @@ func InitRouter(r *gin.Engine) {
 		}
 		res.Title = dto.Title
 		res.Content = dto.Content
+		res.OrderSort = dto.OrderSort
 		c.JSON(http.StatusOK, res)
 	})
 
@@ -194,9 +196,10 @@ func InitRouter(r *gin.Engine) {
 		res.Status = http.StatusOK
 
 		type articleParams struct {
-			Id      string `json:"id" form:"id"`
-			Title   string `form:"title" json:"title"`
-			Content string `form:"content" json:"content"`
+			Id        string `json:"id" form:"id"`
+			Title     string `form:"title" json:"title"`
+			OrderSort int    `form:"order_sort" json:"order_sort"`
+			Content   string `form:"content" json:"content"`
 		}
 
 		var param articleParams
@@ -215,7 +218,7 @@ func InitRouter(r *gin.Engine) {
 		}
 
 		articleService := application.NewArticleService(c.Request.Context())
-		err = articleService.Update(c.Request.Context(), id, param.Title, param.Content)
+		err = articleService.Update(c.Request.Context(), id, param.Title, param.Content, param.OrderSort)
 		if err != nil {
 			res.ErrorMsg = err.Error()
 			c.JSON(http.StatusOK, res)

@@ -6,6 +6,7 @@ type ArticlePo struct {
 	Pid        int     `gorm:"column:pid"`
 	CategoryID int     `gorm:"column:category_id"`
 	Title      string  `gorm:"column:title"`
+	Sort       int     `gorm:"column:sort"`
 }
 
 func (ArticlePo) TableName() string {

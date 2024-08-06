@@ -22,6 +22,7 @@ type ArticleWithContentDo struct {
 	CategoryID int
 	Title      string
 	Content    string
+	OrderSort  int
 }
 
 type ArticleBiz struct {
@@ -79,9 +80,10 @@ func (b *ArticleBiz) Create(ctx context.Context, categoryId, pid int, title stri
 	return do, nil
 }
 
-func (b *ArticleBiz) Update(ctx context.Context, id int, title string, content string) error {
+func (b *ArticleBiz) Update(ctx context.Context, id int, title string, content string, orderSort int) error {
 	fields := make(map[string]interface{})
 	fields["title"] = title
+	fields["sort"] = orderSort
 	err := b.articleRepo.Update(ctx, id, fields)
 	if err != nil {
 		return err
@@ -127,6 +129,7 @@ func (b *ArticleBiz) Get(ctx context.Context, id int) (*ArticleWithContentDo, er
 		CategoryID: articlePo.CategoryID,
 		Title:      articlePo.Title,
 		Content:    contentPo.Content,
+		OrderSort:  articlePo.Sort,
 	}
 
 	return do, nil

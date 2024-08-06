@@ -138,6 +138,11 @@
         </div>
       </div>
       <div class="layui-row">
+          <div class="layui-col-md12">
+               排序:<input type="text" name="order_sort" placeholder="排序" autocomplete="off" class="layui-input">
+          </div>
+      </div>
+      <div class="layui-row">
         <div class="layui-col-md12">
             <textarea name="content" placeholder="请输入内容" id="editor"></textarea>
         </div>
@@ -253,6 +258,7 @@
               success: function(data) {
                   if (data.error_msg === "") {
                       $('input[name="title"]').val(data.title);
+                      $('input[name="order_sort"]').val(data.order_sort);
                       window.editor.setData(data.content)
                       layer.open({
                       type: 1,
@@ -262,7 +268,7 @@
                       btn: ['修改'],
                       yes: function(index, layero) {
                             var url = "/article";
-                            var data = JSON.stringify({ id: selected_node.id, title: $('input[name="title"]').val(), content: window.editor.getData() });
+                            var data = JSON.stringify({ id: selected_node.id, title: $('input[name="title"]').val(), order_sort: $('input[name="order_sort"]').val(), content: window.editor.getData() });
                             $.ajax({
                                 url: url,
                                 type: "PUT",
