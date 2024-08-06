@@ -198,7 +198,7 @@ func InitRouter(r *gin.Engine) {
 		type articleParams struct {
 			Id        string `json:"id" form:"id"`
 			Title     string `form:"title" json:"title"`
-			OrderSort int    `form:"order_sort" json:"order_sort"`
+			OrderSort string `form:"order_sort" json:"order_sort"`
 			Content   string `form:"content" json:"content"`
 		}
 
@@ -217,8 +217,16 @@ func InitRouter(r *gin.Engine) {
 			return
 		}
 
+		orderSort, err := strconv.Atoi(param.OrderSort)
+		if err != nil {
+			res.ErrorMsg = "参数错误"
+			c.JSON(http.StatusOK, res)
+			return
+		}
+
 		articleService := application.NewArticleService(c.Request.Context())
-		err = articleService.Update(c.Request.Context(), id, param.Title, param.Content, param.OrderSort)
+
+		err = articleService.Update(c.Request.Context(), id, param.Title, param.Content, orderSort)
 		if err != nil {
 			res.ErrorMsg = err.Error()
 			c.JSON(http.StatusOK, res)
