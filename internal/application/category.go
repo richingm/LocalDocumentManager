@@ -22,6 +22,15 @@ func NewCategoryService(ctx context.Context) *CategoryService {
 	return &CategoryService{}
 }
 
+func (r *CategoryService) Create(ctx context.Context, pid int, title string, content string) error {
+	categoryBiz := domain.NewCategoryBiz(ctx, repo.NewCategoryRepo(mysql.GormDb))
+	err := categoryBiz.Create(ctx, pid, title, content)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (r *CategoryService) ListHtml(ctx context.Context) (string, error) {
 	categoryBiz := domain.NewCategoryBiz(ctx, repo.NewCategoryRepo(mysql.GormDb))
 	list, err := categoryBiz.List(ctx)
@@ -40,7 +49,7 @@ func (s *CategoryService) Nodes(ctx context.Context, categoryId int) (NodeDto, e
 		return NodeDto{}, err
 	}
 	res := NodeDto{
-		ID:       "0",
+		ID:       fmt.Sprintf("%d", categoryDo.ID),
 		Topic:    categoryDo.Name,
 		Expanded: false,
 	}

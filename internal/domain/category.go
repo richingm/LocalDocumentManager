@@ -2,6 +2,7 @@ package domain
 
 import (
 	"golang.org/x/net/context"
+	"richingm/LocalDocumentManager/internal/entity"
 	"richingm/LocalDocumentManager/internal/repo"
 )
 
@@ -69,4 +70,22 @@ func (b *CategoryBiz) List(ctx context.Context) ([]*CategoryDo, error) {
 		})
 	}
 	return res, nil
+}
+
+func (b *CategoryBiz) Create(ctx context.Context, pid int, title string, content string) error {
+	sortNum, err := b.categoryRepo.GetSort(ctx, pid)
+	if err != nil {
+		return err
+	}
+
+	err = b.categoryRepo.Create(ctx, &entity.CategoryPo{
+		Pid:  pid,
+		Name: title,
+		Sort: int(sortNum + 1),
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

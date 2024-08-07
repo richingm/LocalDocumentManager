@@ -327,4 +327,44 @@ func InitRouter(r *gin.Engine) {
 		res.Content = nodes
 		c.JSON(http.StatusOK, res)
 	})
+
+	r.POST("/admin/category", func(c *gin.Context) {
+		type response struct {
+			Status   int    `json:"status"`
+			ErrorMsg string `json:"error_msg"`
+		}
+
+		var res response
+		res.Status = http.StatusOK
+
+		type categoryParams struct {
+			Pid     string `json:"pid" form:"pid"`
+			Title   string `form:"title" json:"title"`
+			Content string `form:"content" json:"content"`
+		}
+
+		var param categoryParams
+		err := c.ShouldBindJSON(&param)
+		if err != nil {
+			res.ErrorMsg = "参数错误"
+			c.JSON(http.StatusOK, res)
+			return
+		}
+
+		pid, err := strconv.Atoi(param.Pid)
+		if err != nil {
+			res.ErrorMsg = "参数错误"
+			c.JSON(http.StatusOK, res)
+			return
+		}
+
+		categoryService := application.NewCategoryService(c.Request.Context())
+		err = categoryService.Create(c.Request.Context(), pid, param.Title, param.Content)
+		if err != nil {
+			res.ErrorMsg = err.Error()
+			c.JSON(http.StatusOK, res)
+			return
+		}
+		c.JSON(http.StatusOK, res)
+	})
 }

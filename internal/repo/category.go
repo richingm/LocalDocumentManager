@@ -1,6 +1,7 @@
 package repo
 
 import (
+	"errors"
 	"golang.org/x/net/context"
 	"gorm.io/gorm"
 	"richingm/LocalDocumentManager/internal/entity"
@@ -44,4 +45,22 @@ func (r *CategoryRepo) List(ctx context.Context) ([]*entity.CategoryPo, error) {
 	var categories []*entity.CategoryPo
 	result := r.db.Model(&entity.CategoryPo{}).Find(&categories).Order("sort asc")
 	return categories, result.Error
+}
+
+func (r *CategoryRepo) GetSort(ctx context.Context, pid int) (int64, error) {
+	type countStruct struct {
+		Count *int64 `gorm:"column:count"`
+	}
+	var count countStruct
+	err := r.db.Model(&entity.CategoryPo{}).Select("max(sort) as count").Where("pid = ?", pid).First(&count).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return 0, nil
+		}
+		return 0, err
+	}
+	if count.Count == nil {
+		return 0, err
+	}
+	return *count.Count, nil
 }

@@ -5,6 +5,7 @@ type CategoryPo struct {
 	CreatedAt []uint8 `gorm:"column:created_at"`
 	Pid       int     `gorm:"column:pid"`
 	Name      string  `gorm:"column:name"`
+	Sort      int     `gorm:"sort"`
 }
 
 func (CategoryPo) TableName() string {

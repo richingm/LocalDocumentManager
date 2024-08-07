@@ -220,14 +220,14 @@
       area: ['100%', '100%'],
       btn: ['创建'],
       yes: function(index, layero) {
-            var url = "/category";
+            var url = "/admin/category";
             var note_key = $("#noteId").html()
-            var selected_node = _jm.get_selected_node();
             pid = "0"
-            if (selected_node != null) {
+            if (_jm != null) {
+                var selected_node = _jm.get_selected_node();
                 pid = selected_node.id;
             }
-            var data = JSON.stringify({ cid: note_key, pid: pid, title: $('input[name="title"]').val(), content: window.editor.getData() });
+            var data = JSON.stringify({ pid: pid, title: $('input[name="title"]').val(), content: window.editor.getData() });
             $.ajax({
                 url: url,
                 type: "POST",
@@ -239,6 +239,7 @@
                          $('#categoryForm').hide();
                          layer.close(index); // 关闭弹出层
                          $("#jsmind_container").html("")
+                         reload_category()
                          load_jsmind(note_key);
                     } else {
                         layer.open({title: '提示',content: response.error_msg});
@@ -441,6 +442,9 @@
 
 <script type="text/javascript">
     $(function(){
+        reload_category()
+    });
+    function reload_category() {
         // ajax获取菜单
         url = "/categories"
         $.ajax({
@@ -554,7 +558,7 @@
                 });
             },
         });
-    });
+    }
 </script>
 
 </body>
