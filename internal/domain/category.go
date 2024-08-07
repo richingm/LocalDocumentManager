@@ -10,10 +10,11 @@ type CategoryBiz struct {
 }
 
 type CategoryDo struct {
-	ID        int     `gorm:"primarykey" uri:"id"`
-	CreatedAt []uint8 `gorm:"column:created_at"`
-	Pid       int     `gorm:"column:pid"`
-	Name      string  `gorm:"column:name"`
+	ID        int
+	CreatedAt []uint8
+	Pid       int
+	Name      string
+	Children  []CategoryDo
 }
 
 func NewCategoryBiz(ctx context.Context, categoryRepo *repo.CategoryRepo) *CategoryBiz {
@@ -34,6 +35,23 @@ func (b *CategoryBiz) Get(ctx context.Context, id int) (*CategoryDo, error) {
 		Name:      po.Name,
 	}
 	return do, err
+}
+
+func (b *CategoryBiz) GetByPid(ctx context.Context, pid int) ([]CategoryDo, error) {
+	list, err := b.categoryRepo.GetByPid(ctx, pid)
+	if err != nil {
+		return nil, err
+	}
+	res := make([]CategoryDo, 0)
+	for _, po := range list {
+		res = append(res, CategoryDo{
+			ID:        po.ID,
+			CreatedAt: po.CreatedAt,
+			Pid:       po.Pid,
+			Name:      po.Name,
+		})
+	}
+	return res, err
 }
 
 func (b *CategoryBiz) List(ctx context.Context) ([]*CategoryDo, error) {

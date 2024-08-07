@@ -33,6 +33,55 @@ func (r *CategoryService) ListHtml(ctx context.Context) (string, error) {
 	return convertCategoryDtoToString(dtos), nil
 }
 
+func (s *CategoryService) Nodes(ctx context.Context, categoryId int) (NodeDto, error) {
+	categoryBiz := domain.NewCategoryBiz(ctx, repo.NewCategoryRepo(mysql.GormDb))
+	categoryDo, err := categoryBiz.Get(ctx, categoryId)
+	if err != nil {
+		return NodeDto{}, err
+	}
+	res := NodeDto{
+		ID:       "0",
+		Topic:    categoryDo.Name,
+		Expanded: false,
+	}
+	categoryDos, err := categoryBiz.GetByPid(ctx, categoryId)
+	if err != nil {
+		return NodeDto{}, err
+	}
+
+	res.Children = buildTreeCategory(categoryDos)
+	return res, nil
+}
+
+func buildTreeCategory(categoryDos []domain.CategoryDo) []*NodeDto {
+	res := make([]*NodeDto, 0, len(categoryDos))
+	for _, categoryDo := range categoryDos {
+		res = append(res, buildTreeCategoryLoop(categoryDo))
+	}
+	return res
+}
+
+func buildTreeCategoryLoop(do domain.CategoryDo) *NodeDto {
+	if len(do.Children) == 0 {
+		return &NodeDto{
+			ID:       fmt.Sprintf("%d", do.ID),
+			Topic:    do.Name,
+			Children: nil,
+			Expanded: false,
+		}
+	}
+	children := make([]*NodeDto, 0, len(do.Children))
+	for _, child := range do.Children {
+		children = append(children, buildTreeCategoryLoop(child))
+	}
+	return &NodeDto{
+		ID:       fmt.Sprintf("%d", do.ID),
+		Topic:    do.Name,
+		Children: children,
+		Expanded: false,
+	}
+}
+
 func generateCategoryHTML(categoryDtos []CategoryDto, i int) string {
 	html := "<ul>"
 	for _, categoryDto := range categoryDtos {

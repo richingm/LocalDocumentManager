@@ -34,6 +34,12 @@ func (r *CategoryRepo) GetByID(ctx context.Context, id int) (*entity.CategoryPo,
 	return &category, result.Error
 }
 
+func (r *CategoryRepo) GetByPid(ctx context.Context, pid int) ([]entity.CategoryPo, error) {
+	list := make([]entity.CategoryPo, 0)
+	result := r.db.Model(&entity.CategoryPo{}).Where("pid = ?", pid).Find(&list)
+	return list, result.Error
+}
+
 func (r *CategoryRepo) List(ctx context.Context) ([]*entity.CategoryPo, error) {
 	var categories []*entity.CategoryPo
 	result := r.db.Model(&entity.CategoryPo{}).Find(&categories).Order("sort asc")

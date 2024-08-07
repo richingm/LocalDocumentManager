@@ -26,6 +26,14 @@ func InitRouter(r *gin.Engine) {
 		)
 	})
 
+	r.GET("/admin", func(c *gin.Context) {
+		c.HTML(
+			http.StatusOK,
+			"admin.tmpl",
+			gin.H{},
+		)
+	})
+
 	// 根据note的key获取脑图数据
 	r.GET("/categories", func(c *gin.Context) {
 		type response struct {
@@ -288,6 +296,35 @@ func InitRouter(r *gin.Engine) {
 			return
 		}
 		res.Content = content
+		c.JSON(http.StatusOK, res)
+	})
+
+	// 根据note的key获取脑图数据
+	r.GET("/category_mind/:note_id", func(c *gin.Context) {
+		type response struct {
+			Status   int                 `json:"status"`
+			Content  application.NodeDto `json:"content"`
+			ErrorMsg string              `json:"error_msg"`
+		}
+		var res response
+		res.Status = http.StatusOK
+
+		noteIdStr := c.Param("note_id")
+		noteId, err := strconv.Atoi(noteIdStr)
+		if err != nil {
+			res.ErrorMsg = "参数错误"
+			c.JSON(http.StatusOK, res)
+			return
+		}
+
+		categoryService := application.NewCategoryService(c.Request.Context())
+		nodes, err := categoryService.Nodes(c.Request.Context(), noteId)
+		if err != nil {
+			res.ErrorMsg = err.Error()
+			c.JSON(http.StatusOK, res)
+			return
+		}
+		res.Content = nodes
 		c.JSON(http.StatusOK, res)
 	})
 }
