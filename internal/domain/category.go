@@ -89,3 +89,11 @@ func (b *CategoryBiz) Create(ctx context.Context, pid int, title string, content
 
 	return nil
 }
+
+func (b *CategoryBiz) Delete(ctx context.Context, id int) error {
+	err := b.categoryRepo.Delete(ctx, id)
+	if err != nil {
+		return err
+	}
+	return nil
+}

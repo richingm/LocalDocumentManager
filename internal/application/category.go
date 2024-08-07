@@ -31,6 +31,15 @@ func (r *CategoryService) Create(ctx context.Context, pid int, title string, con
 	return nil
 }
 
+func (s *CategoryService) Delete(ctx context.Context, id int) error {
+	categoryBiz := domain.NewCategoryBiz(ctx, repo.NewCategoryRepo(mysql.GormDb))
+	err := categoryBiz.Delete(ctx, id)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (r *CategoryService) ListHtml(ctx context.Context) (string, error) {
 	categoryBiz := domain.NewCategoryBiz(ctx, repo.NewCategoryRepo(mysql.GormDb))
 	list, err := categoryBiz.List(ctx)

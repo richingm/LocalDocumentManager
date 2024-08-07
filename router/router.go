@@ -367,4 +367,31 @@ func InitRouter(r *gin.Engine) {
 		}
 		c.JSON(http.StatusOK, res)
 	})
+
+	r.DELETE("/category/:id", func(c *gin.Context) {
+		type response struct {
+			Status   int    `json:"status"`
+			ErrorMsg string `json:"error_msg"`
+		}
+
+		var res response
+		res.Status = http.StatusOK
+
+		idStr := c.Param("id")
+		id, err := strconv.Atoi(idStr)
+		if err != nil {
+			res.ErrorMsg = "参数错误"
+			c.JSON(http.StatusOK, res)
+			return
+		}
+
+		categoryService := application.NewCategoryService(c.Request.Context())
+		err = categoryService.Delete(c.Request.Context(), id)
+		if err != nil {
+			res.ErrorMsg = err.Error()
+			c.JSON(http.StatusOK, res)
+			return
+		}
+		c.JSON(http.StatusOK, res)
+	})
 }
