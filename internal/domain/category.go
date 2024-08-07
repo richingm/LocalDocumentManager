@@ -15,6 +15,7 @@ type CategoryDo struct {
 	CreatedAt []uint8
 	Pid       int
 	Name      string
+	Sort      int
 	Children  []CategoryDo
 }
 
@@ -34,6 +35,7 @@ func (b *CategoryBiz) Get(ctx context.Context, id int) (*CategoryDo, error) {
 		CreatedAt: po.CreatedAt,
 		Pid:       po.Pid,
 		Name:      po.Name,
+		Sort:      po.Sort,
 	}
 	return do, err
 }
@@ -92,6 +94,24 @@ func (b *CategoryBiz) Create(ctx context.Context, pid int, title string, content
 
 func (b *CategoryBiz) Delete(ctx context.Context, id int) error {
 	err := b.categoryRepo.Delete(ctx, id)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (b *CategoryBiz) Update(ctx context.Context, id int, title string, orderSort int) error {
+	po, err := b.categoryRepo.GetByID(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	err = b.categoryRepo.Update(ctx, &entity.CategoryPo{
+		ID:   id,
+		Pid:  po.Pid,
+		Name: title,
+		Sort: orderSort,
+	})
 	if err != nil {
 		return err
 	}

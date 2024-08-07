@@ -15,6 +15,7 @@ type CategoryDto struct {
 	Id       int
 	Pid      int
 	Name     string
+	Sort     int
 	Children []CategoryDto
 }
 
@@ -31,6 +32,15 @@ func (r *CategoryService) Create(ctx context.Context, pid int, title string, con
 	return nil
 }
 
+func (s *CategoryService) Update(ctx context.Context, id int, title string, orderSort int) error {
+	categoryBiz := domain.NewCategoryBiz(ctx, repo.NewCategoryRepo(mysql.GormDb))
+	err := categoryBiz.Update(ctx, id, title, orderSort)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (s *CategoryService) Delete(ctx context.Context, id int) error {
 	categoryBiz := domain.NewCategoryBiz(ctx, repo.NewCategoryRepo(mysql.GormDb))
 	err := categoryBiz.Delete(ctx, id)
@@ -38,6 +48,19 @@ func (s *CategoryService) Delete(ctx context.Context, id int) error {
 		return err
 	}
 	return nil
+}
+
+func (s *CategoryService) Get(ctx context.Context, id int) (*CategoryDto, error) {
+	categoryBiz := domain.NewCategoryBiz(ctx, repo.NewCategoryRepo(mysql.GormDb))
+	do, err := categoryBiz.Get(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	return &CategoryDto{
+		Id:   do.ID,
+		Name: do.Name,
+		Sort: do.Sort,
+	}, nil
 }
 
 func (r *CategoryService) ListHtml(ctx context.Context) (string, error) {

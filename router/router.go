@@ -394,4 +394,82 @@ func InitRouter(r *gin.Engine) {
 		}
 		c.JSON(http.StatusOK, res)
 	})
+
+	r.PUT("/category", func(c *gin.Context) {
+		type response struct {
+			Status   int    `json:"status"`
+			ErrorMsg string `json:"error_msg"`
+		}
+
+		var res response
+		res.Status = http.StatusOK
+
+		type categoryParams struct {
+			Id        string `json:"id" form:"id"`
+			Title     string `form:"title" json:"title"`
+			OrderSort string `form:"order_sort" json:"order_sort"`
+		}
+
+		var param categoryParams
+		err := c.ShouldBindJSON(&param)
+		if err != nil {
+			res.ErrorMsg = "参数错误"
+			c.JSON(http.StatusOK, res)
+			return
+		}
+
+		id, err := strconv.Atoi(param.Id)
+		if err != nil {
+			res.ErrorMsg = "参数错误"
+			c.JSON(http.StatusOK, res)
+			return
+		}
+
+		orderSort, err := strconv.Atoi(param.OrderSort)
+		if err != nil {
+			res.ErrorMsg = "参数错误"
+			c.JSON(http.StatusOK, res)
+			return
+		}
+
+		categoryService := application.NewCategoryService(c.Request.Context())
+		err = categoryService.Update(c.Request.Context(), id, param.Title, orderSort)
+		if err != nil {
+			res.ErrorMsg = err.Error()
+			c.JSON(http.StatusOK, res)
+			return
+		}
+		c.JSON(http.StatusOK, res)
+	})
+
+	r.GET("/category/:id", func(c *gin.Context) {
+		type response struct {
+			Status   int    `json:"status"`
+			Title    string `json:"title"`
+			Sort     int    `json:"sort"`
+			ErrorMsg string `json:"error_msg"`
+		}
+
+		var res response
+		res.Status = http.StatusOK
+
+		idStr := c.Param("id")
+		id, err := strconv.Atoi(idStr)
+		if err != nil {
+			res.ErrorMsg = "参数错误"
+			c.JSON(http.StatusOK, res)
+			return
+		}
+
+		categoryService := application.NewCategoryService(c.Request.Context())
+		dto, err := categoryService.Get(c.Request.Context(), id)
+		if err != nil {
+			res.ErrorMsg = err.Error()
+			c.JSON(http.StatusOK, res)
+			return
+		}
+		res.Title = dto.Name
+		res.Sort = dto.Sort
+		c.JSON(http.StatusOK, res)
+	})
 }
