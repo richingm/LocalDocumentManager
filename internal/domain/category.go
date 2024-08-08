@@ -106,12 +106,10 @@ func (b *CategoryBiz) Update(ctx context.Context, id int, title string, orderSor
 		return err
 	}
 
-	err = b.categoryRepo.Update(ctx, &entity.CategoryPo{
-		ID:   id,
-		Pid:  po.Pid,
-		Name: title,
-		Sort: orderSort,
-	})
+	fields := make(map[string]interface{})
+	fields["name"] = title
+	fields["sort"] = orderSort
+	err = b.categoryRepo.Update(ctx, po.ID, fields)
 	if err != nil {
 		return err
 	}

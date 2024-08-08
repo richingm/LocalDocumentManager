@@ -21,8 +21,9 @@ func (r *CategoryRepo) Create(ctx context.Context, po *entity.CategoryPo) error 
 	return r.db.Model(&entity.CategoryPo{}).Create(po).Error
 }
 
-func (r *CategoryRepo) Update(ctx context.Context, po *entity.CategoryPo) error {
-	return r.db.Model(&entity.CategoryPo{}).Save(po).Error
+func (r *CategoryRepo) Update(ctx context.Context, id int, fields map[string]interface{}) error {
+	return r.db.Model(&entity.CategoryPo{}).Where("id = ?", id).Updates(fields).Error
+
 }
 
 func (r *CategoryRepo) Delete(ctx context.Context, id int) error {
