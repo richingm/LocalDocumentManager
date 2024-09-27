@@ -85,7 +85,7 @@ func (s *CategoryService) Nodes(ctx context.Context, categoryId int) (NodeDto, e
 		Topic:    categoryDo.Name,
 		Expanded: false,
 	}
-	categoryDos, err := categoryBiz.GetByPid(ctx, categoryId)
+	categoryDos, err := categoryBiz.GetByPidLoop(ctx, categoryId)
 	if err != nil {
 		return NodeDto{}, err
 	}

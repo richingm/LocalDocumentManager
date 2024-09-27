@@ -22,7 +22,20 @@ func InitRouter(r *gin.Engine) {
 		c.HTML(
 			http.StatusOK,
 			"index.tmpl",
-			gin.H{},
+			gin.H{
+				"NodeId": "",
+			},
+		)
+	})
+
+	r.GET("/:id", func(c *gin.Context) {
+		noteIdStr := c.Param("id")
+		c.HTML(
+			http.StatusOK,
+			"index.tmpl",
+			gin.H{
+				"NodeId": noteIdStr,
+			},
 		)
 	})
 

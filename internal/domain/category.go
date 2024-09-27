@@ -57,6 +57,28 @@ func (b *CategoryBiz) GetByPid(ctx context.Context, pid int) ([]CategoryDo, erro
 	return res, err
 }
 
+func (b *CategoryBiz) GetByPidLoop(ctx context.Context, pid int) ([]CategoryDo, error) {
+	res := make([]CategoryDo, 0)
+	list, err := b.GetByPid(ctx, pid)
+	if err != nil {
+		return nil, err
+	}
+	if len(list) == 0 {
+		return res, nil
+	}
+	for _, po := range list {
+		list, err = b.GetByPidLoop(ctx, po.ID)
+		if err != nil {
+			return nil, err
+		}
+		if len(list) > 0 {
+			po.Children = list
+		}
+		res = append(res, po)
+	}
+	return res, err
+}
+
 func (b *CategoryBiz) List(ctx context.Context) ([]*CategoryDo, error) {
 	list, err := b.categoryRepo.List(ctx)
 	if err != nil {

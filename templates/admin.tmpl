@@ -124,6 +124,7 @@
                         <button class="layui-btn" id="addCategory">添加</button>
                         <button class="layui-btn" id="editCategory">修改</button>
                         <button class="layui-btn" id="delCategory">删除</button>
+                        <button class="layui-btn" id="articleMind">脑图</button>
             </div>
         </div>
         <div id="jsmind_container"></div>
@@ -293,6 +294,39 @@
         layer.open({title: '提示',content: '没有选择知识库!'});
       }
     });
+
+  $('#articleMind').click(function() {
+      if (_jm == null) {
+          layer.open({title: '提示',content: "请选择知识库"});
+          return
+      }
+      var selected_node = _jm.get_selected_node();
+      if (selected_node !== null) {
+          var url = "/" + selected_node.id;
+          window.open(url, '_blank');
+
+          // $.ajax({
+          //     url: url,
+          //     type: "DELETE",
+          //     data: {},
+          //     success: function(response) {
+          //         if (response.status == 200) {
+          //             $('#categoryForm').hide();
+          //             layer.close(index); // 关闭弹出层
+          //             $("#jsmind_container").html("")
+          //             var note_key = $("#noteId").html()
+          //             reload_category()
+          //             load_jsmind(note_key);
+          //         } else {
+          //             layer.open({title: '提示',content: response.error_msg});
+          //         }
+          //     },
+          // });
+          // layer.close(index);
+      } else {
+          layer.open({title: '提示',content: '没有选择知识库!'});
+      }
+  });
   </script>
 <script type="text/javascript" src="/static/js/jsmind.js"></script>
 <script type="text/javascript" src="/static/js/layer/layer.js"></script>

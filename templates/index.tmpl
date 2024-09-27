@@ -120,6 +120,7 @@
         <div class="top">
             <h1 id="note-title"></h1>
             <div id="currentNoteKey" style="display: none;"></div>
+            <div id="setNoteKey" style="display: none;">{{ .NodeId }}</div>
             <div class="btn">
                         <button class="layui-btn" id="addArticle">添加</button>
                         <button class="layui-btn" id="editArticle">修改</button>
@@ -559,8 +560,12 @@
                 });
             },
         });
+
+        var setNoteKey = $("#setNoteKey").html()
+        if (setNoteKey !== null) {
+            load_jsmind(setNoteKey);
+        }
     });
 </script>
-
 </body>
 </html>
