@@ -76,14 +76,23 @@ func (r *CategoryService) ListHtml(ctx context.Context) (string, error) {
 
 func (s *CategoryService) Nodes(ctx context.Context, categoryId int) (NodeDto, error) {
 	categoryBiz := domain.NewCategoryBiz(ctx, repo.NewCategoryRepo(mysql.GormDb))
-	categoryDo, err := categoryBiz.Get(ctx, categoryId)
-	if err != nil {
-		return NodeDto{}, err
-	}
-	res := NodeDto{
-		ID:       fmt.Sprintf("%d", categoryDo.ID),
-		Topic:    categoryDo.Name,
-		Expanded: false,
+	var res NodeDto
+	if categoryId == 0 {
+		res = NodeDto{
+			ID:       fmt.Sprintf("%d", 0),
+			Topic:    "全部",
+			Expanded: false,
+		}
+	} else {
+		categoryDo, err := categoryBiz.Get(ctx, categoryId)
+		if err != nil {
+			return NodeDto{}, err
+		}
+		res = NodeDto{
+			ID:       fmt.Sprintf("%d", categoryDo.ID),
+			Topic:    categoryDo.Name,
+			Expanded: false,
+		}
 	}
 	categoryDos, err := categoryBiz.GetByPidLoop(ctx, categoryId)
 	if err != nil {

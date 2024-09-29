@@ -20,6 +20,7 @@ func InitConfig() {
 type Config struct {
 	Server      ServerConfig `yaml:"server"`
 	MysqlConfig MysqlConfig  `yaml:"mysql"`
+	EmailConfig EmailConfig  `yaml:"emailConfig"`
 }
 
 type ServerConfig struct {
@@ -39,4 +40,11 @@ type MysqlConfig struct {
 	MaxIdleConns    int    `yaml:"max-idle-conns"`    // 空闲中的最大连接数
 	MaxOpenConns    int    `yaml:"max-open-conns"`    // 打开到数据库的最大连接数
 	ConnMaxLifetime int    `yaml:"conn-max-lifetime"` // 连接最大生存时间, 单位: 分钟
+}
+
+type EmailConfig struct {
+	Sender   string `yaml:"sender"`   //  := "1060220963@qq.com"  //发送者qq邮箱
+	AuthCode string `yaml:"authCode"` // := "lcrlixrdkmfybdbe" //qq邮箱授权码
+	Smtp     string `yaml:"smtp"`
+	SmtpCode int    `yaml:"smtpCode"`
 }

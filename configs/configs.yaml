@@ -10,3 +10,9 @@ mysql:
   max-idle-conns: 5
   max-open-conns: 30
   conn-max-lifetime: 420
+
+emailConfig:
+  sender: xxxx
+  authCode: xxx
+  smtp: smtp.qq.com
+  smtpCode: 587

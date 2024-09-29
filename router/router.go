@@ -23,26 +23,31 @@ func InitRouter(r *gin.Engine) {
 			http.StatusOK,
 			"index.tmpl",
 			gin.H{
-				"NodeId": "",
+				"Title":  "",
+				"NodeId": "0",
 			},
 		)
 	})
 
-	r.GET("/:id", func(c *gin.Context) {
+	r.GET("/knowledge/:id", func(c *gin.Context) {
 		noteIdStr := c.Param("id")
+		noteId, _ := strconv.Atoi(noteIdStr)
+		categoryService := application.NewCategoryService(c.Request.Context())
+		categoryDto, _ := categoryService.Get(c.Request.Context(), noteId)
 		c.HTML(
 			http.StatusOK,
-			"index.tmpl",
+			"knowledge.tmpl",
 			gin.H{
+				"Title":  categoryDto.Name,
 				"NodeId": noteIdStr,
 			},
 		)
 	})
 
-	r.GET("/admin", func(c *gin.Context) {
+	r.GET("/knowledge", func(c *gin.Context) {
 		c.HTML(
 			http.StatusOK,
-			"admin.tmpl",
+			"knowledge.tmpl",
 			gin.H{},
 		)
 	})
@@ -483,6 +488,25 @@ func InitRouter(r *gin.Engine) {
 		}
 		res.Title = dto.Name
 		res.Sort = dto.Sort
+		c.JSON(http.StatusOK, res)
+	})
+
+	r.PUT("/backup", func(c *gin.Context) {
+		type response struct {
+			Status   int    `json:"status"`
+			ErrorMsg string `json:"error_msg"`
+		}
+
+		var res response
+		res.Status = http.StatusOK
+
+		backupService := application.NewBackupService()
+		err := backupService.Back()
+		if err != nil {
+			res.ErrorMsg = err.Error()
+			c.JSON(http.StatusInternalServerError, res)
+			return
+		}
 		c.JSON(http.StatusOK, res)
 	})
 }

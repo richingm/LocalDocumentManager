@@ -118,20 +118,21 @@
     </div>
     <div class="container-right">
         <div class="top">
-            <h1 id="note-title"></h1>
-            <div id="noteId" style="display: none;"></div>
+            <h1 id="note-title">{{ .Title }}</h1>
+            <div id="currentNoteKey" style="display: none;"></div>
+            <div id="setNoteKey" style="display: none;">{{ .NodeId }}</div>
+            <a class="layui-btn"  href="/">返回首页</a>
             <div class="btn">
-                <button class="layui-btn" id="addCategory">添加</button>
-                <button class="layui-btn" id="editCategory">修改</button>
-                <button class="layui-btn" id="delCategory">删除</button>
-                <button class="layui-btn" id="articleMind">脑图</button>
-                <button class="layui-btn" id="backUpDB">备份数据库</button>
+                <button class="layui-btn" id="addArticle">添加</button>
+                <button class="layui-btn" id="editArticle">修改</button>
+                <button class="layui-btn" id="delArticle">删除</button>
+                <button class="layui-btn" id="viewArticle">查看</button>
             </div>
         </div>
         <div id="jsmind_container"></div>
     </div>
 </div>
-<div class="layui-form" id="categoryForm" style="display: none;">
+<div class="layui-form" id="articleForm" style="display: none;">
     <form class="layui-form" action="" lay-filter="formDemo">
         <div class="layui-row">
             <div class="layui-col-md12">
@@ -143,8 +144,61 @@
                 排序:<input type="text" name="order_sort" placeholder="排序" autocomplete="off" class="layui-input">
             </div>
         </div>
+        <div class="layui-row">
+            <div class="layui-col-md12">
+                <textarea name="content" placeholder="请输入内容" id="editor"></textarea>
+            </div>
+        </div>
     </form>
 </div>
+<script type="importmap">
+    {
+      "imports": {
+        "ckeditor5": "/static/ckeditor5/ckeditor5.js",
+        "ckeditor5/": "/static/ckeditor5/"
+      }
+    }
+</script>
+<script type="module">
+    import { ClassicEditor, Essentials, Paragraph, Bold, Italic, Font, Image, ImageToolbar, ImageUpload, ImageCaption, ImageStyle, Base64UploadAdapter, Heading, Table, TableToolbar, Strikethrough, List, BlockQuote, CodeBlock } from 'ckeditor5';
+
+    ClassicEditor
+        .create(document.querySelector('#editor'), {
+            plugins: [
+                Essentials, Paragraph, Bold, Italic, Font, Image, ImageToolbar, ImageUpload, ImageCaption, ImageStyle, Base64UploadAdapter, Heading, Table, TableToolbar, Strikethrough, List, BlockQuote,CodeBlock
+            ],
+            toolbar: [
+                'undo', 'redo', '|', 'heading', '|', 'bold', 'italic', 'strikethrough', '|', 'fontSize', 'fontFamily', 'fontColor', 'fontBackgroundColor', '|', 'bulletedList', 'numberedList', '|', 'insertTable', '|', 'imageUpload', 'blockQuote', 'codeBlock'
+            ],
+            heading: {
+                options: [
+                    { model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph' },
+                    { model: 'heading1', view: 'h1', title: 'Heading 1', class: 'ck-heading_heading1' },
+                    { model: 'heading2', view: 'h2', title: 'Heading 2', class: 'ck-heading_heading2' },
+                    { model: 'heading3', view: 'h3', title: 'Heading 3', class: 'ck-heading_heading3' },
+                    { model: 'heading4', view: 'h4', title: 'Heading 4', class: 'ck-heading_heading4' },
+                    { model: 'heading5', view: 'h5', title: 'Heading 5', class: 'ck-heading_heading5' },
+                    { model: 'heading6', view: 'h6', title: 'Heading 6', class: 'ck-heading_heading6' }
+                ]
+            },
+            image: {
+                toolbar: [
+                    'imageTextAlternative', '|', 'imageStyle:inline', 'imageStyle:block', 'imageStyle:side'
+                ]
+            },
+            table: {
+                contentToolbar: [
+                    'tableColumn', 'tableRow', 'mergeTableCells'
+                ]
+            }
+        })
+        .then(editor => {
+            window.editor = editor;
+        })
+        .catch(error => {
+            console.error(error);
+        });
+</script>
 
 <!-- A friendly reminder to run on a server, remove this during the integration. -->
 <script>
@@ -156,25 +210,30 @@
 </script>
 
 <script>
-    $('#addCategory').click(function() {
+    $('#addArticle').click(function() {
+        if (_jm == null) {
+            layer.open({title: '提示',content: "没有选择知识库"});
+            return
+        }
         $('input[name="title"]').val('');
         $('input[name="order_sort"]').val('0')
         $('#idSort').hide()
+        window.editor.setData('')
         layer.open({
             type: 1,
-            title: '添加知识库',
-            content: $('#categoryForm'),
+            title: '添加文章',
+            content: $('#articleForm'),
             area: ['100%', '100%'],
             btn: ['创建'],
             yes: function(index, layero) {
-                var url = "/admin/category";
-                var note_key = $("#noteId").html()
+                var url = "/article";
+                var note_key = $("#currentNoteKey").html()
+                var selected_node = _jm.get_selected_node();
                 pid = "0"
-                if (_jm != null) {
-                    var selected_node = _jm.get_selected_node();
+                if (selected_node != null) {
                     pid = selected_node.id;
                 }
-                var data = JSON.stringify({ pid: pid, title: $('input[name="title"]').val()});
+                var data = JSON.stringify({ cid: note_key, pid: pid, title: $('input[name="title"]').val(), content: window.editor.getData() });
                 $.ajax({
                     url: url,
                     type: "POST",
@@ -183,11 +242,9 @@
                     contentType: "application/json",
                     success: function(response) {
                         if (response.status == 200) {
-                            $('#categoryForm').hide();
+                            $('#articleForm').hide();
                             layer.close(index); // 关闭弹出层
                             $("#jsmind_container").html("")
-                            var note_key = $("#noteId").html()
-                            reload_category()
                             load_jsmind(note_key);
                         } else {
                             layer.open({title: '提示',content: response.error_msg});
@@ -196,20 +253,20 @@
                 });
             },
             cancel: function() {
-                $('#categoryForm').hide();
+                $('#articleForm').hide();
             },
             success: function(layero, index) {
             }
         });
     });
-    $('#editCategory').click(function() {
+    $('#editArticle').click(function() {
         if (_jm == null) {
             layer.open({title: '提示',content: "没有选择知识库"});
             return
         }
         var selected_node = _jm.get_selected_node();
         if (selected_node !== null) {
-            var url = "/category/" + selected_node.id
+            var url = "/article/" + selected_node.id
             $('#idSort').show()
             $.ajax({
                 url: url,
@@ -218,16 +275,17 @@
                 success: function(data) {
                     if (data.error_msg === "") {
                         $('input[name="title"]').val(data.title);
-                        $('input[name="order_sort"]').val(data.sort);
+                        $('input[name="order_sort"]').val(data.order_sort);
+                        window.editor.setData(data.content)
                         layer.open({
                             type: 1,
-                            title: '修改知识库',
-                            content: $('#categoryForm'),
+                            title: '修改文章',
+                            content: $('#articleForm'),
                             area: ['100%', '100%'],
                             btn: ['修改'],
                             yes: function(index, layero) {
-                                var url = "/category";
-                                var data = JSON.stringify({ id: selected_node.id, title: $('input[name="title"]').val(), order_sort: $('input[name="order_sort"]').val() });
+                                var url = "/article";
+                                var data = JSON.stringify({ id: selected_node.id, title: $('input[name="title"]').val(), order_sort: $('input[name="order_sort"]').val(), content: window.editor.getData() });
                                 $.ajax({
                                     url: url,
                                     type: "PUT",
@@ -236,11 +294,10 @@
                                     contentType: "application/json",
                                     success: function(response) {
                                         if (response.status == 200) {
-                                            $('#categoryForm').hide();
+                                            $('#articleForm').hide();
                                             layer.close(index); // 关闭弹出层
                                             $("#jsmind_container").html("")
-                                            var note_key = $("#noteId").html()
-                                            reload_category()
+                                            var note_key = $("#currentNoteKey").html()
                                             load_jsmind(note_key);
                                         } else {
                                             layer.open({title: '提示',content: response.error_msg});
@@ -249,7 +306,7 @@
                                 });
                             },
                             cancel: function() {
-                                $('#categoryForm').hide();
+                                $('#articleForm').hide();
                             },
                             success: function(layero, index) {
                             }
@@ -260,29 +317,28 @@
                 },
             });
         } else {
-            layer.open({title: '提示',content: '没有选择知识库'});
+            layer.open({title: '提示',content: '没有选择文章'});
         }
     });
-    $('#delCategory').click(function() {
+    $('#delArticle').click(function() {
         if (_jm == null) {
-            layer.open({title: '提示',content: "请选择知识库"});
+            layer.open({title: '提示',content: "请选择文章"});
             return
         }
         var selected_node = _jm.get_selected_node();
         if (selected_node !== null) {
             layer.confirm('确定要删除:' + selected_node.topic + '？', {icon: 3, title:'提示'}, function(index){
-                var url = "/category/" + selected_node.id;
+                var url = "/article/" + selected_node.id;
                 $.ajax({
                     url: url,
                     type: "DELETE",
                     data: {},
                     success: function(response) {
                         if (response.status == 200) {
-                            $('#categoryForm').hide();
+                            $('#articleForm').hide();
                             layer.close(index); // 关闭弹出层
                             $("#jsmind_container").html("")
-                            var note_key = $("#noteId").html()
-                            reload_category()
+                            var note_key = $("#currentNoteKey").html()
                             load_jsmind(note_key);
                         } else {
                             layer.open({title: '提示',content: response.error_msg});
@@ -292,59 +348,58 @@
                 layer.close(index);
             });
         } else {
-            layer.open({title: '提示',content: '没有选择知识库!'});
+            layer.open({title: '提示',content: '没有选择文章!'});
         }
     });
-
-    $('#articleMind').click(function() {
-        if (_jm == null) {
-            layer.open({title: '提示',content: "请选择知识库"});
+    $("#viewArticle").click(function () {
+        var note_key = $("#currentNoteKey").html()
+        if (note_key !== "") {
+            var selected_node = _jm.get_selected_node();
+            if (!!selected_node) {
+                url = "/note/" + selected_node.id
+                $.ajax({
+                    url: url,
+                    type: "GET",
+                    data: {},
+                    success: function(response) {
+                        if (response.status == 200) {
+                            layer.open({
+                                type: 1,   //0-4的选择,（1代表page层）
+                                area: ['98%', '98%'],
+                                // shade: [0],  //不显示遮罩
+                                // border: [0], //不显示边框
+                                resize: false,
+                                shadeClose: true,
+                                title: [response.title],
+                                bgcolor: '#eee', //设置层背景色
+                                content: "<div style=\"padding: 20px;\" id='detail'>" + response.content + "</div>",
+                                // shift: 'top' //从上动画弹出
+                            });
+                            ImagePreview.init({id:$("#detail p img")});
+                        } else {
+                            layer.open({title: '提示',content: response.error_msg});
+                        }
+                    },
+                });
+            } else {
+                layer.open({title: '提示',content: "请选择文章!"});
+                return
+            }
+        } else {
+            layer.open({title: '提示',content: "请选择文章"});
             return
         }
-        var selected_node = _jm.get_selected_node();
-        if (selected_node !== null) {
-            var url = "/knowledge/" + selected_node.id;
-            // window.open(url, '_blank');
-            window.location.href = url
-        } else {
-            layer.open({title: '提示',content: '没有选择知识库!'});
-        }
-    });
-
-    $('#backUpDB').click(function() {
-        layer.confirm('确定要备份？', {icon: 3, title:'提示'}, function(index){
-            var url = "/backup";
-            $.ajax({
-                url: url,
-                type: "PUT",
-                data: {},
-                success: function(response) {
-                    if (response.status == 200) {
-                        layer.msg('备份成功', {
-                            icon: 6,
-                            time: 3000 // 设置3秒后自动关闭
-                        });
-                    } else {
-                        layer.msg('备份失败:' + response.error_msg, {
-                            icon: 6,
-                            time: 3000 // 设置3秒后自动关闭
-                        });
-                    }
-                },
-            });
-            layer.close(index);
-        });
-    });
+    })
 </script>
 <script type="text/javascript" src="/static/js/jsmind.js"></script>
 <script type="text/javascript" src="/static/js/layer/layer.js"></script>
 <script type="text/javascript">
     var _jm = null;
-    function load_jsmind(note_id) {
-        if (note_id === "") {
+    function load_jsmind(note_key) {
+        if (note_key === "") {
             return
         }
-        url = "/category_mind/" + note_id
+        url = "/mind/" + note_key
         $.ajax({
             url: url,
             type: "GET",
@@ -377,6 +432,7 @@
                         },
                         view: {
                             expander_style: 'char',
+                            node_overflow: 'wrap', // 节点文本过长时的样式
                         },
                     };
                     _jm = new jsMind(options);
@@ -392,9 +448,6 @@
 
 <script type="text/javascript">
     $(function(){
-        reload_category()
-    });
-    function reload_category() {
         // ajax获取菜单
         url = "/categories"
         $.ajax({
@@ -446,7 +499,7 @@
                     }
                     $("#jsmind_container").html("")
                     $("#note-title").html($(this).attr("title"))
-                    $("#noteId").html($(this).attr("note-id"))
+                    $("#currentNoteKey").html($(this).attr("note-id"))
                     load_jsmind($(this).attr("note-id"));
                 });
                 //lsm-mini
@@ -508,10 +561,12 @@
                 });
             },
         });
-    }
 
-    load_jsmind("0");
+        var setNoteKey = $("#setNoteKey").html()
+        if (setNoteKey !== null) {
+            load_jsmind(setNoteKey);
+        }
+    });
 </script>
-
 </body>
 </html>
