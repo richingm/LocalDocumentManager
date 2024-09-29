@@ -318,6 +318,7 @@
                 url: url,
                 type: "PUT",
                 data: {},
+                timeout: 10000000,
                 success: function(response) {
                     if (response.status == 200) {
                         layer.msg('备份成功', {
