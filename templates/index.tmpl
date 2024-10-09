@@ -119,7 +119,7 @@
     <div class="container-right">
         <div class="top">
             <h1 id="note-title"></h1>
-            <div id="noteId" style="display: none;"></div>
+            <div id="noteId" style="display: none;">0</div>
             <div class="btn">
                 <button class="layui-btn" id="addCategory">添加</button>
                 <button class="layui-btn" id="editCategory">修改</button>
@@ -186,7 +186,6 @@
                             $('#categoryForm').hide();
                             layer.close(index); // 关闭弹出层
                             $("#jsmind_container").html("")
-                            var note_key = $("#noteId").html()
                             reload_category()
                             load_jsmind(note_key);
                         } else {
