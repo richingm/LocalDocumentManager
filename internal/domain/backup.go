@@ -24,19 +24,19 @@ func (b *BackupBiz) Save() error {
 		return err
 	}
 
-	mysqlConf := configs.ConfigXx.MysqlConfig
+	//mysqlConf := configs.ConfigXx.MysqlConfig
+	//
+	//conf := configs.ConfigXx.EmailConfig
+	//err = b.sendEmail([]string{conf.Sender}, "网站备份", "备份数据库:"+mysqlConf.Dbname, backupPath)
+	//if err != nil {
+	//	return err
+	//}
 
-	conf := configs.ConfigXx.EmailConfig
-	err = b.sendEmail([]string{conf.Sender}, "网站备份", "备份数据库:"+mysqlConf.Dbname, backupPath)
-	if err != nil {
-		return err
-	}
-
-	// 删除备份文件
-	err = os.Remove(backupPath)
-	if err != nil {
-		return err
-	}
+	//// 删除备份文件
+	//err = os.Remove(backupPath)
+	//if err != nil {
+	//	return err
+	//}
 
 	return nil
 }
