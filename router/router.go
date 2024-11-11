@@ -29,6 +29,18 @@ func InitRouter(r *gin.Engine) {
 		)
 	})
 
+	r.GET("/:nodeId", func(c *gin.Context) {
+		noteIdStr := c.Param("nodeId")
+		c.HTML(
+			http.StatusOK,
+			"index.tmpl",
+			gin.H{
+				"Title":  "",
+				"NodeId": noteIdStr,
+			},
+		)
+	})
+
 	r.GET("/knowledge/:id", func(c *gin.Context) {
 		noteIdStr := c.Param("id")
 		noteId, _ := strconv.Atoi(noteIdStr)
@@ -331,6 +343,10 @@ func InitRouter(r *gin.Engine) {
 		noteId, err := strconv.Atoi(noteIdStr)
 		if err != nil {
 			res.ErrorMsg = "参数错误"
+			c.JSON(http.StatusOK, res)
+			return
+		}
+		if noteId == 0 {
 			c.JSON(http.StatusOK, res)
 			return
 		}
