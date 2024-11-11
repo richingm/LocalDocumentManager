@@ -41,7 +41,7 @@ func InitRouter(r *gin.Engine) {
 		)
 	})
 
-	r.GET("/knowledge/:id", func(c *gin.Context) {
+	r.GET("/knowledge/pid/:pid/id/:id", func(c *gin.Context) {
 		noteIdStr := c.Param("id")
 		noteId, _ := strconv.Atoi(noteIdStr)
 		categoryService := application.NewCategoryService(c.Request.Context())
@@ -50,8 +50,9 @@ func InitRouter(r *gin.Engine) {
 			http.StatusOK,
 			"knowledge.tmpl",
 			gin.H{
-				"Title":  categoryDto.Name,
-				"NodeId": noteIdStr,
+				"Title":   categoryDto.Name,
+				"NodeId":  noteIdStr,
+				"PNodeId": c.Param("pid"),
 			},
 		)
 	})

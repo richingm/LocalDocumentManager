@@ -119,7 +119,8 @@
     <div class="container-right">
         <div class="top">
             <h1 id="note-title"></h1>
-            <div id="noteId" style="display: none;">0</div>
+            <div id="noteId" style="display: none;">{{ .NodeId }}</div>
+            <div id="clickNoteId" style="display: none;">0</div>
             <div class="btn">
                 <button class="layui-btn" id="addCategory">添加</button>
                 <button class="layui-btn" id="editCategory">修改</button>
@@ -301,8 +302,9 @@
             return
         }
         var selected_node = _jm.get_selected_node();
+        var preNoteId = $("#clickNoteId").html()
         if (selected_node !== null) {
-            var url = "/knowledge/" + selected_node.id;
+            var url = "/knowledge/pid/"+preNoteId+"/id/" + selected_node.id;
             // window.open(url, '_blank');
             window.location.href = url
         } else {
@@ -345,6 +347,7 @@
             return
         }
         url = "/category_mind/" + note_id
+        $("#clickNoteId").html(note_id)
         $.ajax({
             url: url,
             type: "GET",
@@ -510,7 +513,7 @@
         });
     }
 
-    load_jsmind("0");
+    load_jsmind($("#noteId").html());
 </script>
 
 </body>
